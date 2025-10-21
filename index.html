@@ -79,46 +79,45 @@
     .card p { margin: 0; color: #6b7280; font-size: 13px; }
     .card h3 { margin: 6px 0 0; font-size: 16px; }
 
-    /* Table area */
+    /* ========================
+       TABLE AREA (FIXED HEADER)
+       ======================== */
     .table-container {
       flex: 1;
       padding: 20px;
+      margin-top: var(--header-height, 280px);
       overflow-x: auto;
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
+      border-collapse: separate; /* ubah ke separate agar ada jarak visual */
+      border-spacing: 0;
       background: white;
-      font-size: 14px;
       border-radius: 10px;
-      overflow: hidden;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
       table-layout: fixed;
     }
 
-    th, td {
-      border: 1px solid #e9edf2;
-      padding: 10px 8px;
-      text-align: center;
-      word-wrap: break-word;
-    }
-
     thead th {
-      /* pakai nilai top dinamis supaya tidak menutup baris */
       position: sticky;
       top: var(--sticky-top);
-      background: #f8fafc;
+      background: #f1f5f9;
       z-index: 150;
-      font-weight: 700;
-      transition: box-shadow 0.2s ease, background 0.2s ease;
       text-align: center;
+      padding: 14px 10px;
+      font-weight: 600;
+      border-bottom: 2px solid #e2e8f0;
     }
 
-    /* tambahkan bayangan ke header tabel saat sticky-header mendapat elev */
-    .sticky-header.elev + .table-container table thead th {
-      box-shadow: 0 3px 10px rgba(15,23,42,0.06);
-      background: #ffffff;
+    tbody td {
+      padding: 10px;
+      text-align: center;
+      border-top: 1px solid #e9edf2;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9fafb;
     }
 
     th:nth-child(1), td:nth-child(1) { width: 15%; }
@@ -131,7 +130,11 @@
     .red   { color: #b91c1c; font-weight: 700; }
     .blue  { color: #1d4ed8; font-weight: 700; }
 
-    tr:nth-child(even) td { background: #fbfdff; }
+    /* Tambahkan efek shadow pada header tabel ketika header utama sticky */
+    .sticky-header.elev + .table-container table thead th {
+      box-shadow: 0 3px 10px rgba(15,23,42,0.06);
+      background: #ffffff;
+    }
 
     /* Footer */
     footer {
@@ -244,7 +247,7 @@
 
   <script>
     /* ========================
-       Hadist / motivasi (30)
+       Hadist / motivasi rotasi
        ======================== */
     const hadistList = [
       "“Sedekah tidak akan mengurangi harta.” – (HR. Muslim)",
@@ -256,30 +259,9 @@
       "“Tangan di atas lebih baik daripada tangan di bawah.” – (HR. Bukhari)",
       "“Barang siapa bersyukur, maka Aku akan menambah nikmatnya.” – (QS. Ibrahim: 7)",
       "“Kesabaran adalah cahaya.” – (HR. Muslim)",
-      "“Barang siapa bertakwa kepada Allah, niscaya Dia akan memberikan jalan keluar.” – (QS. Ath-Thalaq: 2)",
-      "“Ikhlaslah, meski tak terlihat oleh manusia.”",
-      "“Sesungguhnya setelah kesulitan ada kemudahan.” – (QS. Al-Insyirah: 6)",
-      "“Perbanyaklah mengingat Allah, maka hatimu akan tenang.” – (QS. Ar-Ra’d: 28)",
-      "“Barang siapa memudahkan urusan orang lain, Allah akan memudahkannya di dunia dan akhirat.” – (HR. Muslim)",
-      "“Harta bukanlah banyaknya kepemilikan, tetapi hati yang merasa cukup.” – (HR. Bukhari)",
-      "“Jangan bersedih, sesungguhnya Allah bersama kita.” – (QS. At-Taubah: 40)",
-      "“Amal yang paling dicintai Allah adalah yang terus-menerus meskipun sedikit.” – (HR. Bukhari)",
-      "“Barang siapa beriman kepada Allah dan hari akhir, hendaklah ia berkata baik atau diam.” – (HR. Bukhari)",
-      "“Shalat adalah tiang agama.” – (HR. Thabrani)",
-      "“Barang siapa memaafkan, maka Allah akan memuliakannya.” – (HR. Muslim)",
-      "“Ingatlah Allah di waktu lapang, niscaya Dia akan mengingatmu di waktu sempit.” – (HR. Ahmad)",
-      "“Kaya bukan karena banyak harta, tapi karena hati yang puas.” – (HR. Bukhari)",
-      "“Sabar adalah separuh dari iman.” – (HR. Thabrani)",
-      "“Barang siapa berbuat baik sebesar zarrah pun, niscaya ia akan melihat (balasannya).” – (QS. Az-Zalzalah: 7)",
-      "“Bersihkan hartamu dengan zakat.”",
-      "“Cintailah orang lain sebagaimana engkau mencintai dirimu sendiri.” – (HR. Bukhari)",
-      "“Allah mencintai orang yang bertobat dan menyucikan diri.” – (QS. Al-Baqarah: 222)",
-      "“Tiada kebaikan pada manusia yang tidak ingin memberi manfaat.”",
-      "“Sedikit tapi berkah lebih baik daripada banyak tapi lalai.”",
-      "“Jangan lupa bersyukur, karena nikmat kecil pun berasal dari-Nya.”"
+      "“Barang siapa bertakwa kepada Allah, niscaya Dia akan memberikan jalan keluar.” – (QS. Ath-Thalaq: 2)"
     ];
 
-    // rotate footer text every 10 seconds with fade
     const hadistEl = document.getElementById('hadistText');
     let hadistIdx = 0;
     setInterval(() => {
@@ -292,33 +274,25 @@
     }, 10000);
 
     /* ========================
-       Sticky header / table top fix
+       Sticky header offset
        ======================== */
     const topHeader = document.getElementById('topHeader');
-
     function updateStickyTop() {
-      // hitung tinggi header (judul+filter+cards) untuk dijadikan top offset thead
       const h = Math.ceil(topHeader.getBoundingClientRect().height);
-      // beri sedikit jarak supaya header tabel tidak menempel rapat (5px)
-      const topValue = (h + 5) + 'px';
-      document.documentElement.style.setProperty('--sticky-top', topValue);
+      document.documentElement.style.setProperty('--sticky-top', (h + 5) + 'px');
     }
 
-    // Elevation effect on scroll
     function onScroll() {
       if (window.scrollY > 8) topHeader.classList.add('elev');
       else topHeader.classList.remove('elev');
     }
 
-    window.addEventListener('load', () => {
-      updateStickyTop();
-      onScroll();
-    });
+    window.addEventListener('load', () => { updateStickyTop(); onScroll(); });
     window.addEventListener('resize', updateStickyTop);
     window.addEventListener('scroll', onScroll);
 
     /* ========================
-       Spreadsheet fetching & table rendering
+       Ambil data Spreadsheet
        ======================== */
     const SHEET_ID = "1QgoEgvEHab29CMkmv8EXFruCC_nGADoY";
     const SHEET_NAME = "Laporan Kas Masjid";
@@ -335,7 +309,7 @@
       .then(text => {
         const start = text.indexOf('{');
         const end = text.lastIndexOf('}');
-        if (start === -1 || end === -1) throw new Error('Data tidak valid. Pastikan sheet sudah Publish to web.');
+        if (start === -1 || end === -1) throw new Error('Data tidak valid.');
         const json = JSON.parse(text.slice(start, end + 1));
         allData = json.table.rows.map(r => ({
           tanggal: r.c[0]?.v || '',
@@ -345,7 +319,6 @@
           saldo: parseFloat(r.c[4]?.v || 0)
         }));
         renderTable();
-        // setelah render, update top (untuk kasus header berubah tinggi karena konten)
         updateStickyTop();
       })
       .catch(err => {
@@ -360,9 +333,9 @@
       const filtered = allData.filter(it => {
         const d = new Date(it.tanggal);
         const month = isNaN(d) ? '' : d.toLocaleString('id-ID', { month: 'long' });
-        const year = isNaN(d) ? '' : (d.getFullYear().toString());
-        const byMonth = (bulan === 'Semua' || month === bulan);
-        const byYear = (tahun === 'Semua' || year === tahun);
+        const year = isNaN(d) ? '' : d.getFullYear().toString();
+        const byMonth = bulan === 'Semua' || month === bulan;
+        const byYear = tahun === 'Semua' || year === tahun;
         const bySearch = it.keterangan.toLowerCase().includes(q);
         return byMonth && byYear && bySearch;
       });
@@ -373,8 +346,8 @@
         return;
       }
 
-      let sumP = 0, sumQ = 0, lastSaldo = 0;
-      const rows = filtered.map(it => {
+      let sumP=0, sumQ=0, lastSaldo=0;
+      const rows = filtered.map(it=>{
         sumP += it.pemasukan;
         sumQ += it.pengeluaran;
         lastSaldo = it.saldo;
@@ -396,38 +369,20 @@
 
       tbody.innerHTML = rows + totalRow;
       updateSummary(sumP, sumQ, lastSaldo);
-      // update sticky top again in case rendering changed header/card sizes
       updateStickyTop();
     }
 
-    function updateSummary(p, q, s) {
-      document.getElementById('totalPemasukan').innerText = `Rp ${formatNum(p)}`;
-      document.getElementById('totalPengeluaran').innerText = `Rp ${formatNum(q)}`;
-      document.getElementById('saldoTerakhir').innerText = `Rp ${formatNum(s)}`;
+    function updateSummary(p,q,s){
+      document.getElementById('totalPemasukan').innerText=`Rp ${formatNum(p)}`;
+      document.getElementById('totalPengeluaran').innerText=`Rp ${formatNum(q)}`;
+      document.getElementById('saldoTerakhir').innerText=`Rp ${formatNum(s)}`;
     }
 
-    // helpers
-    function formatNum(n) {
-      if (isNaN(n)) return '0';
-      return n.toLocaleString('id-ID');
-    }
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#039;');
-    }
+    function formatNum(n){return isNaN(n)?'0':n.toLocaleString('id-ID');}
+    function escapeHtml(str){return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");}
 
-    // events
     bulanSelect.onchange = tahunSelect.onchange = searchInput.oninput = renderTable;
-    function resetFilter() {
-      bulanSelect.value = 'Semua';
-      tahunSelect.value = 'Semua';
-      searchInput.value = '';
-      renderTable();
-    }
+    function resetFilter(){bulanSelect.value='Semua';tahunSelect.value='Semua';searchInput.value='';renderTable();}
   </script>
 </body>
 </html>
