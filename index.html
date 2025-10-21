@@ -114,11 +114,11 @@
   </table>
 
   <script>
-    // ID sheet (hanya ID-nya, bukan seluruh URL)
+    // ✅ Hanya ID, bukan seluruh URL
     const SHEET_ID = "1QgoEgvEHab29CMkmv8EXFruCC_nGADoY";
     const SHEET_NAME = "Laporan Kas Masjid";
 
-    // URL GViz publik (pastikan sheet sudah dipublish ke web)
+    // ✅ URL GViz
     const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
     let allData = [];
@@ -126,10 +126,10 @@
     fetch(URL)
       .then(res => res.text())
       .then(text => {
-        // ambil bagian JSON dari output Google Sheets
+        // parsing aman untuk GViz JSON
         const start = text.indexOf('{');
         const end = text.lastIndexOf('}');
-        if (start === -1 || end === -1) throw new Error("Data tidak valid! Pastikan sheet sudah 'Publish to web'.");
+        if (start === -1 || end === -1) throw new Error("Data tidak valid, pastikan sheet sudah 'Publish to web'.");
         const json = JSON.parse(text.slice(start, end + 1));
 
         const rows = json.table.rows.map(r => ({
@@ -144,7 +144,8 @@
         renderTable();
       })
       .catch(err => {
-        document.getElementById('dataBody').innerHTML = `<tr><td colspan='5'>⚠️ Gagal memuat data (${err.message})</td></tr>`;
+        document.getElementById('dataBody').innerHTML =
+          `<tr><td colspan='5'>⚠️ Gagal memuat data (${err.message})</td></tr>`;
       });
 
     function renderTable() {
