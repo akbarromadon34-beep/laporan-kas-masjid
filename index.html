@@ -58,12 +58,14 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      table-layout: fixed; /* ✅ Lebar kolom seragam */
     }
 
     th, td {
       border: 1px solid #ddd;
-      padding: 8px 10px;
-      white-space: nowrap;
+      padding: 8px 6px;
+      text-align: center;
+      word-wrap: break-word;
     }
 
     th {
@@ -71,14 +73,12 @@
       font-weight: bold;
     }
 
-    td:nth-child(1) { width: 110px; text-align: center; }  /* Tanggal */
-    td:nth-child(2) { width: 240px; text-align: left; }   /* Keterangan */
-    td:nth-child(3),
-    td:nth-child(4),
-    td:nth-child(5) {
-      width: 140px;
-      text-align: right;
-    }
+    /* ✅ Lebar kolom seragam dan proporsional */
+    th:nth-child(1), td:nth-child(1) { width: 18%; }  /* Tanggal */
+    th:nth-child(2), td:nth-child(2) { width: 32%; text-align: left; } /* Keterangan */
+    th:nth-child(3), td:nth-child(3) { width: 16%; text-align: right; } /* Pemasukan */
+    th:nth-child(4), td:nth-child(4) { width: 16%; text-align: right; } /* Pengeluaran */
+    th:nth-child(5), td:nth-child(5) { width: 18%; text-align: right; } /* Saldo */
 
     .green { color: #047857; font-weight: bold; }
     .red { color: #b91c1c; font-weight: bold; }
@@ -164,11 +164,8 @@
   </table>
 
   <script>
-    // Hanya ID Sheet, bukan seluruh URL
     const SHEET_ID = "1QgoEgvEHab29CMkmv8EXFruCC_nGADoY";
     const SHEET_NAME = "Laporan Kas Masjid";
-
-    // URL publik Google Sheet (pastikan sudah 'Publish to web')
     const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
     let allData = [];
@@ -236,6 +233,16 @@
             <td data-label="Saldo" class='blue'>Rp ${item.saldo.toLocaleString()}</td>
           </tr>`;
       });
+
+      // Tambahkan total di bawah tabel
+      html += `
+        <tr style="background:#f1f5f9;font-weight:bold;">
+          <td colspan="2" style="text-align:center;">Total</td>
+          <td class="green">Rp ${pemasukanTotal.toLocaleString()}</td>
+          <td class="red">Rp ${pengeluaranTotal.toLocaleString()}</td>
+          <td class="blue">Rp ${saldoTerakhir.toLocaleString()}</td>
+        </tr>
+      `;
 
       tbody.innerHTML = html;
       updateSummary(pemasukanTotal, pengeluaranTotal, saldoTerakhir);
