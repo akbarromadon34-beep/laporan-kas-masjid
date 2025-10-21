@@ -96,6 +96,10 @@
       background: #f1f5f9;
       font-weight: 600;
       color: #374151;
+      position: sticky;    /* ✅ Sticky header */
+      top: 0;              /* Tempel di atas */
+      z-index: 2;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     /* ✅ Kolom proporsional */
@@ -111,6 +115,11 @@
 
     tr:nth-child(even) {
       background: #f9fafb;
+    }
+
+    /* ✅ Jarak bawah biar scroll nyaman */
+    tbody tr:last-child {
+      margin-bottom: 50px;
     }
 
     /* ==================== RESPONSIVE ==================== */
