@@ -114,16 +114,24 @@
   </table>
 
   <script>
-    const SHEET_ID = "https://docs.google.com/spreadsheets/d/1QgoEgvEHab29CMkmv8EXFruCC_nGADoY/gviz/tq?tqx=out:json&sheet=Laporan%20Kas%20Masjid"; // ganti dengan ID Sheet kamu
-    const SHEET_NAME = "Laporan Kas Masjid"; // ganti jika nama tab berbeda
-    const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+    // ID sheet (hanya ID-nya, bukan seluruh URL)
+    const SHEET_ID = "1QgoEgvEHab29CMkmv8EXFruCC_nGADoY";
+    const SHEET_NAME = "Laporan Kas Masjid";
+
+    // URL GViz publik (pastikan sheet sudah dipublish ke web)
+    const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
     let allData = [];
 
     fetch(URL)
       .then(res => res.text())
       .then(text => {
-        const json = JSON.parse(text.substr(47).slice(0, -2));
+        // ambil bagian JSON dari output Google Sheets
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        if (start === -1 || end === -1) throw new Error("Data tidak valid! Pastikan sheet sudah 'Publish to web'.");
+        const json = JSON.parse(text.slice(start, end + 1));
+
         const rows = json.table.rows.map(r => ({
           tanggal: r.c[0]?.v || '',
           keterangan: r.c[1]?.v || '',
@@ -131,11 +139,12 @@
           pengeluaran: parseFloat(r.c[3]?.v || 0),
           saldo: parseFloat(r.c[4]?.v || 0)
         }));
+
         allData = rows;
         renderTable();
       })
       .catch(err => {
-        document.getElementById('dataBody').innerHTML = `<tr><td colspan='5'>Gagal memuat data (${err})</td></tr>`;
+        document.getElementById('dataBody').innerHTML = `<tr><td colspan='5'>⚠️ Gagal memuat data (${err.message})</td></tr>`;
       });
 
     function renderTable() {
@@ -171,7 +180,7 @@
         html += `
           <tr>
             <td>${item.tanggal}</td>
-            <td style=\"text-align:left\">${item.keterangan}</td>
+            <td style="text-align:left">${item.keterangan}</td>
             <td class='green'>Rp ${item.pemasukan.toLocaleString()}</td>
             <td class='red'>Rp ${item.pengeluaran.toLocaleString()}</td>
             <td class='blue'>Rp ${item.saldo.toLocaleString()}</td>
