@@ -15,8 +15,10 @@
     h1 {
       text-align: center;
       margin-bottom: 20px;
+      color: #111827;
     }
 
+    /* ==================== FILTER SECTION ==================== */
     .filters {
       display: flex;
       flex-wrap: wrap;
@@ -26,12 +28,23 @@
     }
 
     select, input, button {
-      padding: 8px;
+      padding: 8px 10px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #cbd5e1;
       font-size: 14px;
     }
 
+    button {
+      background: #f1f5f9;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #e2e8f0;
+    }
+
+    /* ==================== SUMMARY CARDS ==================== */
     .summary {
       display: flex;
       flex-wrap: wrap;
@@ -42,14 +55,25 @@
 
     .card {
       background: white;
-      border: 1px solid #ddd;
+      border: 1px solid #e5e7eb;
       border-radius: 10px;
-      padding: 10px 20px;
-      min-width: 180px;
+      padding: 15px 25px;
+      min-width: 200px;
       text-align: center;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
+    .card p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .card h3 {
+      margin: 5px 0 0 0;
+    }
+
+    /* ==================== TABLE STYLES ==================== */
     table {
       border-collapse: collapse;
       width: 100%;
@@ -58,55 +82,61 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      table-layout: fixed; /* ✅ Lebar kolom seragam */
+      table-layout: fixed;
     }
 
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px 6px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 8px;
       text-align: center;
       word-wrap: break-word;
     }
 
     th {
       background: #f1f5f9;
-      font-weight: bold;
+      font-weight: 600;
+      color: #374151;
     }
 
-    /* ✅ Lebar kolom seragam dan proporsional */
-    th:nth-child(1), td:nth-child(1) { width: 10%; }  /* Tanggal */
-    th:nth-child(2), td:nth-child(2) { width: 10%; text-align: left; } /* Keterangan */
-    th:nth-child(3), td:nth-child(3) { width: 10%; text-align: right; } /* Pemasukan */
-    th:nth-child(4), td:nth-child(4) { width: 10%; text-align: right; } /* Pengeluaran */
-    th:nth-child(5), td:nth-child(5) { width: 10%; text-align: right; } /* Saldo */
+    /* ✅ Kolom proporsional */
+    th:nth-child(1), td:nth-child(1) { width: 12%; }  /* Tanggal */
+    th:nth-child(2), td:nth-child(2) { width: 40%; text-align: left; } /* Keterangan */
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(5), td:nth-child(5) { width: 16%; text-align: right; } /* Nominal */
 
-    .green { color: #047857; font-weight: bold; }
-    .red { color: #b91c1c; font-weight: bold; }
-    .blue { color: #1d4ed8; font-weight: bold; }
+    .green { color: #047857; font-weight: 600; }
+    .red { color: #b91c1c; font-weight: 600; }
+    .blue { color: #1d4ed8; font-weight: 600; }
 
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
     @media (max-width: 768px) {
       table, thead, tbody, th, td, tr {
         display: block;
       }
       thead { display: none; }
       tr {
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         background: white;
         border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         padding: 10px;
       }
       td {
-        text-align: right;
         border: none;
         display: flex;
         justify-content: space-between;
-        padding: 5px 10px;
+        padding: 6px 10px;
+        font-size: 13px;
       }
       td::before {
         content: attr(data-label);
-        font-weight: bold;
-        text-align: left;
+        font-weight: 600;
+        color: #374151;
       }
     }
   </style>
@@ -234,7 +264,6 @@
           </tr>`;
       });
 
-      // Tambahkan total di bawah tabel
       html += `
         <tr style="background:#f1f5f9;font-weight:bold;">
           <td colspan="2" style="text-align:center;">Total</td>
