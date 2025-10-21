@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Kas Masjid</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    select, input, button {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f1f5f9;
+    }
+    .green { color: green; font-weight: bold; }
+    .red { color: red; font-weight: bold; }
+    .blue { color: blue; font-weight: bold; }
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px 20px;
+      min-width: 200px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Laporan Kas Masjid</h1>
+
+  <div class="filters">
+    <select id="bulanSelect">
+      <option value="Semua">Semua Bulan</option>
+      <option>Januari</option><option>Februari</option><option>Maret</option>
+      <option>April</option><option>Mei</option><option>Juni</option>
+      <option>Juli</option><option>Agustus</option><option>September</option>
+      <option>Oktober</option><option>November</option><option>Desember</option>
+    </select>
+
+    <select id="tahunSelect">
+      <option value="Semua">Semua Tahun</option>
+      <option>2024</option>
+      <option>2025</option>
+    </select>
+
+    <input type="text" id="searchInput" placeholder="Cari keterangan...">
+    <button onclick="resetFilter()">Reset</button>
+  </div>
+
+  <div class="summary">
+    <div class="card">
+      <p>Total Pemasukan</p>
+      <h3 id="totalPemasukan" class="green">Rp 0</h3>
+    </div>
+    <div class="card">
+      <p>Total Pengeluaran</p>
+      <h3 id="totalPengeluaran" class="red">Rp 0</h3>
+    </div>
+    <div class="card">
+      <p>Saldo Terakhir</p>
+      <h3 id="saldoTerakhir" class="blue">Rp 0</h3>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Keterangan</th>
+        <th>Pemasukan</th>
+        <th>Pengeluaran</th>
+        <th>Saldo</th>
+      </tr>
+    </thead>
+    <tbody id="dataBody">
+      <tr><td colspan="5">Memuat data...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const SHEET_ID = "https://docs.google.com/spreadsheets/d/1QgoEgvEHab29CMkmv8EXFruCC_nGADoY/edit?gid=444679291#gid=444679291"; // ganti dengan ID Sheet kamu
+    const SHEET_NAME = "Laporan Kas Masjid"; // ganti jika nama tab berbeda
+    const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+    let allData = [];
+
+    fetch(URL)
+      .then(res => res.text())
+      .then(text => {
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows.map(r => ({
+          tanggal: r.c[0]?.v || '',
+          keterangan: r.c[1]?.v || '',
+          pemasukan: parseFloat(r.c[2]?.v || 0),
+          pengeluaran: parseFloat(r.c[3]?.v || 0),
+          saldo: parseFloat(r.c[4]?.v || 0)
+        }));
+        allData = rows;
+        renderTable();
+      })
+      .catch(err => {
+        document.getElementById('dataBody').innerHTML = `<tr><td colspan='5'>Gagal memuat data (${err})</td></tr>`;
+      });
+
+    function renderTable() {
+      const bulan = document.getElementById('bulanSelect').value;
+      const tahun = document.getElementById('tahunSelect').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      const filtered = allData.filter(item => {
+        const date = new Date(item.tanggal);
+        const month = date.toLocaleString('id-ID', { month: 'long' });
+        const year = date.getFullYear().toString();
+        const byMonth = bulan === 'Semua' || month === bulan;
+        const byYear = tahun === 'Semua' || year === tahun;
+        const bySearch = item.keterangan.toLowerCase().includes(search);
+        return byMonth && byYear && bySearch;
+      });
+
+      const tbody = document.getElementById('dataBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan='5'>Tidak ada data untuk periode ini.</td></tr>`;
+        updateSummary(0, 0, 0);
+        return;
+      }
+
+      let pemasukanTotal = 0, pengeluaranTotal = 0;
+      let saldoTerakhir = 0;
+      let html = '';
+
+      filtered.forEach(item => {
+        pemasukanTotal += item.pemasukan;
+        pengeluaranTotal += item.pengeluaran;
+        saldoTerakhir = item.saldo;
+        html += `
+          <tr>
+            <td>${item.tanggal}</td>
+            <td style=\"text-align:left\">${item.keterangan}</td>
+            <td class='green'>Rp ${item.pemasukan.toLocaleString()}</td>
+            <td class='red'>Rp ${item.pengeluaran.toLocaleString()}</td>
+            <td class='blue'>Rp ${item.saldo.toLocaleString()}</td>
+          </tr>`;
+      });
+
+      tbody.innerHTML = html;
+      updateSummary(pemasukanTotal, pengeluaranTotal, saldoTerakhir);
+    }
+
+    function updateSummary(pemasukan, pengeluaran, saldo) {
+      document.getElementById('totalPemasukan').innerText = `Rp ${pemasukan.toLocaleString()}`;
+      document.getElementById('totalPengeluaran').innerText = `Rp ${pengeluaran.toLocaleString()}`;
+      document.getElementById('saldoTerakhir').innerText = `Rp ${saldo.toLocaleString()}`;
+    }
+
+    document.getElementById('bulanSelect').addEventListener('change', renderTable);
+    document.getElementById('tahunSelect').addEventListener('change', renderTable);
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+
+    function resetFilter() {
+      document.getElementById('bulanSelect').value = 'Semua';
+      document.getElementById('tahunSelect').value = 'Semua';
+      document.getElementById('searchInput').value = '';
+      renderTable();
+    }
+  </script>
+</body>
+</html>
