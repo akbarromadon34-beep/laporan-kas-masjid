@@ -1,44 +1,32 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Kas Masjid</title>
   <style>
-    :root {
-      --sticky-top: 0px; /* akan di-set oleh JS */
-    }
-
     body {
       font-family: "Segoe UI", Arial, sans-serif;
       background: #f8fafc;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      color: #111827;
     }
 
-    /* Sticky header (judul + filter + cards) */
+    /* === Sticky Header Container === */
     .sticky-header {
       position: sticky;
       top: 0;
-      z-index: 200;
+      z-index: 100;
       background: #f8fafc;
       padding: 20px;
-      transition: box-shadow 0.25s ease, background 0.25s ease;
-    }
-    .sticky-header.elev {
-      box-shadow: 0 6px 18px rgba(15,23,42,0.08);
-      background: #ffffffee;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     h1 {
       text-align: center;
-      margin: 0 0 18px;
-      font-size: 1.8rem;
-      font-weight: 700;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      color: #111827;
     }
 
     .filters {
@@ -46,44 +34,42 @@
       flex-wrap: wrap;
       gap: 10px;
       justify-content: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     select, input, button {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
       font-size: 14px;
-      background: white;
     }
-
-    button { cursor: pointer; background: #f1f5f9; }
-    button:hover { background: #e2e8f0; }
 
     .summary {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 18px;
+      gap: 20px;
     }
 
     .card {
       background: white;
-      border: 1px solid #e6e9ee;
+      border: 1px solid #ddd;
       border-radius: 10px;
-      padding: 12px 24px;
+      padding: 10px 20px;
       min-width: 200px;
       text-align: center;
-      box-shadow: 0 2px 6px rgba(10,20,40,0.04);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-    .card p { margin: 0; color: #6b7280; font-size: 13px; }
-    .card h3 { margin: 6px 0 0; font-size: 16px; }
 
-    /* Table area */
-    .table-container {
-      flex: 1;
-      padding: 20px;
-      overflow-x: auto;
+    .card p {
+      margin: 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .card h3 {
+      margin: 5px 0 0;
+      font-size: 16px;
     }
 
     table {
@@ -93,72 +79,43 @@
       font-size: 14px;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-top: 20px;
       table-layout: fixed;
     }
 
     th, td {
-      border: 1px solid #e9edf2;
-      padding: 10px 8px;
+      border: 1px solid #ddd;
+      padding: 8px 6px;
       text-align: center;
       word-wrap: break-word;
     }
 
-    thead th {
-      /* pakai nilai top dinamis supaya tidak menutup baris */
-      position: sticky;
-      top: var(--sticky-top);
-      background: #f8fafc;
-      z-index: 150;
-      font-weight: 700;
-      transition: box-shadow 0.2s ease, background 0.2s ease;
-      text-align: center;
-    }
-
-    /* tambahkan bayangan ke header tabel saat sticky-header mendapat elev */
-    .sticky-header.elev + .table-container table thead th {
-      box-shadow: 0 3px 10px rgba(15,23,42,0.06);
-      background: #ffffff;
+    th {
+      background: #f1f5f9;
+      font-weight: bold;
     }
 
     th:nth-child(1), td:nth-child(1) { width: 15%; }
-    th:nth-child(2), td:nth-child(2) { width: 35%; text-align: left; padding-left: 16px; }
+    th:nth-child(2), td:nth-child(2) { width: 35%; text-align: left; }
     th:nth-child(3), td:nth-child(3),
     th:nth-child(4), td:nth-child(4),
-    th:nth-child(5), td:nth-child(5) { width: 16%; text-align: right; padding-right: 16px; }
+    th:nth-child(5), td:nth-child(5) { width: 16%; text-align: right; }
 
-    .green { color: #047857; font-weight: 700; }
-    .red   { color: #b91c1c; font-weight: 700; }
-    .blue  { color: #1d4ed8; font-weight: 700; }
+    .green { color: #047857; font-weight: bold; }
+    .red { color: #b91c1c; font-weight: bold; }
+    .blue { color: #1d4ed8; font-weight: bold; }
 
-    tr:nth-child(even) td { background: #fbfdff; }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      background: #fff;
-      color: #4b5563;
-      font-size: 14px;
-      padding: 14px 12px;
-      border-top: 1px solid #e9edf2;
-    }
-    footer span {
-      font-style: italic;
-      color: #1e3a8a;
-      display: inline-block;
-      transition: opacity 0.8s ease;
-      opacity: 1;
-    }
-
-    /* Responsive card / table stacking for small screens */
     @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
       thead { display: none; }
-      table, tbody, th, td, tr { display: block; }
       tr {
-        margin-bottom: 12px;
+        margin-bottom: 15px;
         background: white;
         border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         padding: 10px;
       }
       td {
@@ -166,23 +123,20 @@
         border: none;
         display: flex;
         justify-content: space-between;
-        padding: 6px 10px;
-        font-size: 13px;
+        padding: 5px 10px;
       }
       td::before {
         content: attr(data-label);
-        font-weight: 700;
+        font-weight: bold;
         text-align: left;
-        color: #374151;
       }
-      thead th { position: static; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sticky top: judul + filter + cards -->
-  <div class="sticky-header" id="topHeader">
+  <!-- === Bagian Sticky Header === -->
+  <div class="sticky-header">
     <h1>Laporan Kas Masjid</h1>
 
     <div class="filters">
@@ -196,10 +150,11 @@
 
       <select id="tahunSelect">
         <option value="Semua">Semua Tahun</option>
-        <option>2024</option><option>2025</option>
+        <option>2024</option>
+        <option>2025</option>
       </select>
 
-      <input id="searchInput" type="text" placeholder="Cari keterangan...">
+      <input type="text" id="searchInput" placeholder="Cari keterangan...">
       <button onclick="resetFilter()">Reset</button>
     </div>
 
@@ -219,8 +174,8 @@
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="table-container">
+  <!-- === Bagian Tabel === -->
+  <div style="padding: 20px;">
     <table>
       <thead>
         <tr>
@@ -237,195 +192,104 @@
     </table>
   </div>
 
-  <!-- Footer -->
-  <footer>
-    <p><span id="hadistText">“Sedekah tidak akan mengurangi harta.” – (HR. Muslim)</span></p>
-  </footer>
-
   <script>
-    /* ========================
-       Hadist / motivasi (30)
-       ======================== */
-    const hadistList = [
-      "“Sedekah tidak akan mengurangi harta.” – (HR. Muslim)",
-      "“Senyummu kepada saudaramu adalah sedekah.” – (HR. Tirmidzi)",
-      "“Barang siapa menempuh jalan untuk mencari ilmu, maka Allah akan memudahkan baginya jalan menuju surga.” – (HR. Muslim)",
-      "“Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lain.” – (HR. Ahmad)",
-      "“Allah tidak melihat rupa dan harta kalian, tetapi hati dan amal kalian.” – (HR. Muslim)",
-      "“Doa adalah senjata orang beriman.” – (HR. Al-Hakim)",
-      "“Tangan di atas lebih baik daripada tangan di bawah.” – (HR. Bukhari)",
-      "“Barang siapa bersyukur, maka Aku akan menambah nikmatnya.” – (QS. Ibrahim: 7)",
-      "“Kesabaran adalah cahaya.” – (HR. Muslim)",
-      "“Barang siapa bertakwa kepada Allah, niscaya Dia akan memberikan jalan keluar.” – (QS. Ath-Thalaq: 2)",
-      "“Ikhlaslah, meski tak terlihat oleh manusia.”",
-      "“Sesungguhnya setelah kesulitan ada kemudahan.” – (QS. Al-Insyirah: 6)",
-      "“Perbanyaklah mengingat Allah, maka hatimu akan tenang.” – (QS. Ar-Ra’d: 28)",
-      "“Barang siapa memudahkan urusan orang lain, Allah akan memudahkannya di dunia dan akhirat.” – (HR. Muslim)",
-      "“Harta bukanlah banyaknya kepemilikan, tetapi hati yang merasa cukup.” – (HR. Bukhari)",
-      "“Jangan bersedih, sesungguhnya Allah bersama kita.” – (QS. At-Taubah: 40)",
-      "“Amal yang paling dicintai Allah adalah yang terus-menerus meskipun sedikit.” – (HR. Bukhari)",
-      "“Barang siapa beriman kepada Allah dan hari akhir, hendaklah ia berkata baik atau diam.” – (HR. Bukhari)",
-      "“Shalat adalah tiang agama.” – (HR. Thabrani)",
-      "“Barang siapa memaafkan, maka Allah akan memuliakannya.” – (HR. Muslim)",
-      "“Ingatlah Allah di waktu lapang, niscaya Dia akan mengingatmu di waktu sempit.” – (HR. Ahmad)",
-      "“Kaya bukan karena banyak harta, tapi karena hati yang puas.” – (HR. Bukhari)",
-      "“Sabar adalah separuh dari iman.” – (HR. Thabrani)",
-      "“Barang siapa berbuat baik sebesar zarrah pun, niscaya ia akan melihat (balasannya).” – (QS. Az-Zalzalah: 7)",
-      "“Bersihkan hartamu dengan zakat.”",
-      "“Cintailah orang lain sebagaimana engkau mencintai dirimu sendiri.” – (HR. Bukhari)",
-      "“Allah mencintai orang yang bertobat dan menyucikan diri.” – (QS. Al-Baqarah: 222)",
-      "“Tiada kebaikan pada manusia yang tidak ingin memberi manfaat.”",
-      "“Sedikit tapi berkah lebih baik daripada banyak tapi lalai.”",
-      "“Jangan lupa bersyukur, karena nikmat kecil pun berasal dari-Nya.”"
-    ];
-
-    // rotate footer text every 10 seconds with fade
-    const hadistEl = document.getElementById('hadistText');
-    let hadistIdx = 0;
-    setInterval(() => {
-      hadistEl.style.opacity = 0;
-      setTimeout(() => {
-        hadistIdx = (hadistIdx + 1) % hadistList.length;
-        hadistEl.textContent = hadistList[hadistIdx];
-        hadistEl.style.opacity = 1;
-      }, 700);
-    }, 10000);
-
-    /* ========================
-       Sticky header / table top fix
-       ======================== */
-    const topHeader = document.getElementById('topHeader');
-
-    function updateStickyTop() {
-      // hitung tinggi header (judul+filter+cards) untuk dijadikan top offset thead
-      const h = Math.ceil(topHeader.getBoundingClientRect().height);
-      // beri sedikit jarak supaya header tabel tidak menempel rapat (5px)
-      const topValue = (h + 5) + 'px';
-      document.documentElement.style.setProperty('--sticky-top', topValue);
-    }
-
-    // Elevation effect on scroll
-    function onScroll() {
-      if (window.scrollY > 8) topHeader.classList.add('elev');
-      else topHeader.classList.remove('elev');
-    }
-
-    window.addEventListener('load', () => {
-      updateStickyTop();
-      onScroll();
-    });
-    window.addEventListener('resize', updateStickyTop);
-    window.addEventListener('scroll', onScroll);
-
-    /* ========================
-       Spreadsheet fetching & table rendering
-       ======================== */
     const SHEET_ID = "1QgoEgvEHab29CMkmv8EXFruCC_nGADoY";
     const SHEET_NAME = "Laporan Kas Masjid";
     const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
     let allData = [];
-    const bulanSelect = document.getElementById('bulanSelect');
-    const tahunSelect = document.getElementById('tahunSelect');
-    const searchInput = document.getElementById('searchInput');
-    const tbody = document.getElementById('dataBody');
 
     fetch(URL)
-      .then(r => r.text())
+      .then(res => res.text())
       .then(text => {
         const start = text.indexOf('{');
         const end = text.lastIndexOf('}');
-        if (start === -1 || end === -1) throw new Error('Data tidak valid. Pastikan sheet sudah Publish to web.');
+        if (start === -1 || end === -1) throw new Error("Data tidak valid, pastikan sheet sudah 'Publish to web'.");
         const json = JSON.parse(text.slice(start, end + 1));
-        allData = json.table.rows.map(r => ({
+
+        const rows = json.table.rows.map(r => ({
           tanggal: r.c[0]?.v || '',
           keterangan: r.c[1]?.v || '',
           pemasukan: parseFloat(r.c[2]?.v || 0),
           pengeluaran: parseFloat(r.c[3]?.v || 0),
           saldo: parseFloat(r.c[4]?.v || 0)
         }));
+
+        allData = rows;
         renderTable();
-        // setelah render, update top (untuk kasus header berubah tinggi karena konten)
-        updateStickyTop();
       })
       .catch(err => {
-        tbody.innerHTML = `<tr><td colspan="5">⚠️ Gagal memuat data (${err.message})</td></tr>`;
+        document.getElementById('dataBody').innerHTML =
+          `<tr><td colspan='5'>⚠️ Gagal memuat data (${err.message})</td></tr>`;
       });
 
     function renderTable() {
-      const bulan = bulanSelect.value;
-      const tahun = tahunSelect.value;
-      const q = searchInput.value.toLowerCase();
+      const bulan = document.getElementById('bulanSelect').value;
+      const tahun = document.getElementById('tahunSelect').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
 
-      const filtered = allData.filter(it => {
-        const d = new Date(it.tanggal);
-        const month = isNaN(d) ? '' : d.toLocaleString('id-ID', { month: 'long' });
-        const year = isNaN(d) ? '' : (d.getFullYear().toString());
-        const byMonth = (bulan === 'Semua' || month === bulan);
-        const byYear = (tahun === 'Semua' || year === tahun);
-        const bySearch = it.keterangan.toLowerCase().includes(q);
+      const filtered = allData.filter(item => {
+        const date = new Date(item.tanggal);
+        const month = date.toLocaleString('id-ID', { month: 'long' });
+        const year = date.getFullYear().toString();
+        const byMonth = bulan === 'Semua' || month === bulan;
+        const byYear = tahun === 'Semua' || year === tahun;
+        const bySearch = item.keterangan.toLowerCase().includes(search);
         return byMonth && byYear && bySearch;
       });
 
-      if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="5">Tidak ada data untuk periode ini.</td></tr>`;
-        updateSummary(0,0,0);
+      const tbody = document.getElementById('dataBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan='5'>Tidak ada data untuk periode ini.</td></tr>`;
+        updateSummary(0, 0, 0);
         return;
       }
 
-      let sumP = 0, sumQ = 0, lastSaldo = 0;
-      const rows = filtered.map(it => {
-        sumP += it.pemasukan;
-        sumQ += it.pengeluaran;
-        lastSaldo = it.saldo;
-        return `<tr>
-          <td data-label="Tanggal">${it.tanggal}</td>
-          <td data-label="Keterangan">${escapeHtml(it.keterangan)}</td>
-          <td data-label="Pemasukan" class="green">Rp ${formatNum(it.pemasukan)}</td>
-          <td data-label="Pengeluaran" class="red">Rp ${formatNum(it.pengeluaran)}</td>
-          <td data-label="Saldo" class="blue">Rp ${formatNum(it.saldo)}</td>
-        </tr>`;
-      }).join('');
+      let pemasukanTotal = 0, pengeluaranTotal = 0;
+      let saldoTerakhir = 0;
+      let html = '';
 
-      const totalRow = `<tr style="background:#f1f5f9;font-weight:700">
-        <td colspan="2" style="text-align:center;">Total</td>
-        <td class="green">Rp ${formatNum(sumP)}</td>
-        <td class="red">Rp ${formatNum(sumQ)}</td>
-        <td class="blue">Rp ${formatNum(lastSaldo)}</td>
-      </tr>`;
+      filtered.forEach(item => {
+        pemasukanTotal += item.pemasukan;
+        pengeluaranTotal += item.pengeluaran;
+        saldoTerakhir = item.saldo;
+        html += `
+          <tr>
+            <td data-label="Tanggal">${item.tanggal}</td>
+            <td data-label="Keterangan">${item.keterangan}</td>
+            <td data-label="Pemasukan" class='green'>Rp ${item.pemasukan.toLocaleString()}</td>
+            <td data-label="Pengeluaran" class='red'>Rp ${item.pengeluaran.toLocaleString()}</td>
+            <td data-label="Saldo" class='blue'>Rp ${item.saldo.toLocaleString()}</td>
+          </tr>`;
+      });
 
-      tbody.innerHTML = rows + totalRow;
-      updateSummary(sumP, sumQ, lastSaldo);
-      // update sticky top again in case rendering changed header/card sizes
-      updateStickyTop();
+      html += `
+        <tr style="background:#f1f5f9;font-weight:bold;">
+          <td colspan="2" style="text-align:center;">Total</td>
+          <td class="green">Rp ${pemasukanTotal.toLocaleString()}</td>
+          <td class="red">Rp ${pengeluaranTotal.toLocaleString()}</td>
+          <td class="blue">Rp ${saldoTerakhir.toLocaleString()}</td>
+        </tr>
+      `;
+
+      tbody.innerHTML = html;
+      updateSummary(pemasukanTotal, pengeluaranTotal, saldoTerakhir);
     }
 
-    function updateSummary(p, q, s) {
-      document.getElementById('totalPemasukan').innerText = `Rp ${formatNum(p)}`;
-      document.getElementById('totalPengeluaran').innerText = `Rp ${formatNum(q)}`;
-      document.getElementById('saldoTerakhir').innerText = `Rp ${formatNum(s)}`;
+    function updateSummary(pemasukan, pengeluaran, saldo) {
+      document.getElementById('totalPemasukan').innerText = `Rp ${pemasukan.toLocaleString()}`;
+      document.getElementById('totalPengeluaran').innerText = `Rp ${pengeluaran.toLocaleString()}`;
+      document.getElementById('saldoTerakhir').innerText = `Rp ${saldo.toLocaleString()}`;
     }
 
-    // helpers
-    function formatNum(n) {
-      if (isNaN(n)) return '0';
-      return n.toLocaleString('id-ID');
-    }
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#039;');
-    }
+    document.getElementById('bulanSelect').addEventListener('change', renderTable);
+    document.getElementById('tahunSelect').addEventListener('change', renderTable);
+    document.getElementById('searchInput').addEventListener('input', renderTable);
 
-    // events
-    bulanSelect.onchange = tahunSelect.onchange = searchInput.oninput = renderTable;
     function resetFilter() {
-      bulanSelect.value = 'Semua';
-      tahunSelect.value = 'Semua';
-      searchInput.value = '';
+      document.getElementById('bulanSelect').value = 'Semua';
+      document.getElementById('tahunSelect').value = 'Semua';
+      document.getElementById('searchInput').value = '';
       renderTable();
     }
   </script>
