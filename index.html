@@ -1,257 +1,349 @@
-<?php
-declare(strict_types=1);
-
-// ============================
-// Konfigurasi
-// ============================
-date_default_timezone_set('Asia/Jakarta');
-$dbFile = __DIR__ . '/kas.sqlite';
-
-// ============================
-// Inisialisasi DB (SQLite)
-// ============================
-$db = new SQLite3($dbFile);
-$db->exec('PRAGMA foreign_keys = ON;');
-$db->exec('
-CREATE TABLE IF NOT EXISTS transactions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  tgl TEXT NOT NULL,
-  tipe TEXT NOT NULL CHECK (tipe IN ("MASUK","KELUAR")),
-  kategori TEXT NOT NULL,
-  keterangan TEXT,
-  jumlah INTEGER NOT NULL CHECK (jumlah > 0),
-  dibuat_pada TEXT NOT NULL
-);
-');
-
-function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
-function rupiah(int $n): string { return 'Rp ' . number_format($n, 0, ',', '.'); }
-
-// ============================
-// Handle aksi: tambah / hapus
-// ============================
-$err = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['aksi'] ?? '') === 'tambah') {
-  $tgl = trim((string)($_POST['tgl'] ?? ''));
-  $tipe = strtoupper(trim((string)($_POST['tipe'] ?? '')));
-  $kategori = trim((string)($_POST['kategori'] ?? ''));
-  $keterangan = trim((string)($_POST['keterangan'] ?? ''));
-  $jumlah = (int)($_POST['jumlah'] ?? 0);
-
-  if ($tgl === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tgl)) $err = 'Tanggal tidak valid.';
-  elseif (!in_array($tipe, ['MASUK','KELUAR'], true)) $err = 'Tipe harus MASUK atau KELUAR.';
-  elseif ($kategori === '') $err = 'Kategori wajib diisi.';
-  elseif ($jumlah <= 0) $err = 'Jumlah harus > 0.';
-
-  if ($err === '') {
-    $stmt = $db->prepare('
-      INSERT INTO transactions (tgl, tipe, kategori, keterangan, jumlah, dibuat_pada)
-      VALUES (:tgl, :tipe, :kategori, :keterangan, :jumlah, :dibuat_pada)
-    ');
-    $stmt->bindValue(':tgl', $tgl, SQLITE3_TEXT);
-    $stmt->bindValue(':tipe', $tipe, SQLITE3_TEXT);
-    $stmt->bindValue(':kategori', $kategori, SQLITE3_TEXT);
-    $stmt->bindValue(':keterangan', $keterangan, SQLITE3_TEXT);
-    $stmt->bindValue(':jumlah', $jumlah, SQLITE3_INTEGER);
-    $stmt->bindValue(':dibuat_pada', date('c'), SQLITE3_TEXT);
-    $stmt->execute();
-
-    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
-    exit;
-  }
-}
-
-if (isset($_GET['hapus'])) {
-  $id = (int)$_GET['hapus'];
-  if ($id > 0) {
-    $stmt = $db->prepare('DELETE FROM transactions WHERE id = :id');
-    $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-    $stmt->execute();
-  }
-  header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
-  exit;
-}
-
-// ============================
-// Filter sederhana (bulan)
-// ============================
-$bulan = trim((string)($_GET['bulan'] ?? '')); // format YYYY-MM
-$where = '';
-$params = [];
-if ($bulan !== '' && preg_match('/^\d{4}-\d{2}$/', $bulan)) {
-  $where = 'WHERE substr(tgl, 1, 7) = :bulan';
-  $params[':bulan'] = $bulan;
-}
-
-// ============================
-// Ambil data + ringkasan
-// ============================
-$sumMasuk = 0; $sumKeluar = 0;
-$qSum = $db->prepare("
-  SELECT
-    COALESCE(SUM(CASE WHEN tipe='MASUK' THEN jumlah END), 0) AS masuk,
-    COALESCE(SUM(CASE WHEN tipe='KELUAR' THEN jumlah END), 0) AS keluar
-  FROM transactions
-  $where
-");
-foreach ($params as $k => $v) $qSum->bindValue($k, $v, SQLITE3_TEXT);
-$resSum = $qSum->execute()->fetchArray(SQLITE3_ASSOC);
-$sumMasuk = (int)$resSum['masuk'];
-$sumKeluar = (int)$resSum['keluar'];
-$saldo = $sumMasuk - $sumKeluar;
-
-$qList = $db->prepare("
-  SELECT id, tgl, tipe, kategori, keterangan, jumlah
-  FROM transactions
-  $where
-  ORDER BY tgl DESC, id DESC
-");
-foreach ($params as $k => $v) $qList->bindValue($k, $v, SQLITE3_TEXT);
-$resList = $qList->execute();
-
-// default tanggal hari ini
-$defaultTgl = date('Y-m-d');
-?>
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kas Masjid - Sederhana</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kas Masjid - Simpel</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<div class="container py-4">
+  <div class="container py-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <h3 class="m-0">Kas Masjid (Simpel)</h3>
 
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="m-0">Kas Masjid (Sederhana)</h3>
-    <form class="d-flex gap-2" method="get">
-      <input class="form-control" type="month" name="bulan" value="<?= h($bulan) ?>">
-      <button class="btn btn-outline-primary" type="submit">Filter</button>
-      <a class="btn btn-outline-secondary" href="<?= h(strtok($_SERVER['REQUEST_URI'], '?')) ?>">Reset</a>
-    </form>
-  </div>
+      <div class="d-flex gap-2 align-items-center">
+        <input id="filterBulan" class="form-control" type="month" />
+        <button id="btnReset" class="btn btn-outline-secondary">Reset</button>
+      </div>
+    </div>
 
-  <div class="row g-3 mb-3">
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div class="text-muted">Total Masuk</div>
-          <div class="fs-4 fw-semibold"><?= rupiah($sumMasuk) ?></div>
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="text-muted">Total Masuk</div>
+            <div id="totalMasuk" class="fs-4 fw-semibold">Rp 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="text-muted">Total Keluar</div>
+            <div id="totalKeluar" class="fs-4 fw-semibold">Rp 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="text-muted">Saldo</div>
+            <div id="saldo" class="fs-4 fw-semibold">Rp 0</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div class="text-muted">Total Keluar</div>
-          <div class="fs-4 fw-semibold"><?= rupiah($sumKeluar) ?></div>
-        </div>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold">Tambah Transaksi</div>
+      <div class="card-body">
+        <div id="alert" class="alert alert-danger d-none"></div>
+
+        <form id="formKas" class="row g-3">
+          <div class="col-md-2">
+            <label class="form-label">Tanggal</label>
+            <input id="tgl" class="form-control" type="date" required />
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Tipe</label>
+            <select id="tipe" class="form-select" required>
+              <option value="MASUK">MASUK</option>
+              <option value="KELUAR">KELUAR</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Kategori</label>
+            <input id="kategori" class="form-control" placeholder="Contoh: Infak / Listrik" required />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Keterangan</label>
+            <input id="keterangan" class="form-control" placeholder="Opsional" />
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Jumlah (Rp)</label>
+            <input id="jumlah" class="form-control" type="number" min="1" step="1" required />
+          </div>
+
+          <div class="col-12 d-flex flex-wrap gap-2">
+            <button class="btn btn-primary" type="submit">Simpan</button>
+
+            <div class="ms-auto d-flex flex-wrap gap-2">
+              <button id="btnExportJson" class="btn btn-outline-primary" type="button">Backup JSON</button>
+              <button id="btnExportCsv" class="btn btn-outline-primary" type="button">Export CSV</button>
+              <label class="btn btn-outline-secondary mb-0">
+                Import JSON <input id="importJson" type="file" accept="application/json" hidden />
+              </label>
+            </div>
+          </div>
+        </form>
+
+        <p class="text-muted mt-3 mb-0 small">
+          Data tersimpan di browser (localStorage). Untuk pindah perangkat: Backup JSON → Import JSON.
+        </p>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div class="text-muted">Saldo</div>
-          <div class="fs-4 fw-semibold"><?= rupiah($saldo) ?></div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="card shadow-sm mb-3">
-    <div class="card-header fw-semibold">Tambah Transaksi</div>
-    <div class="card-body">
-      <?php if ($err !== ''): ?>
-        <div class="alert alert-danger"><?= h($err) ?></div>
-      <?php endif; ?>
-      <form method="post" class="row g-3">
-        <input type="hidden" name="aksi" value="tambah">
-        <div class="col-md-2">
-          <label class="form-label">Tanggal</label>
-          <input class="form-control" type="date" name="tgl" value="<?= h($defaultTgl) ?>" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Tipe</label>
-          <select class="form-select" name="tipe" required>
-            <option value="MASUK">MASUK</option>
-            <option value="KELUAR">KELUAR</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Kategori</label>
-          <input class="form-control" name="kategori" placeholder="Contoh: Infak / Listrik" required>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Keterangan</label>
-          <input class="form-control" name="keterangan" placeholder="Opsional">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Jumlah (Rp)</label>
-          <input class="form-control" type="number" name="jumlah" min="1" step="1" required>
-        </div>
-        <div class="col-12">
-          <button class="btn btn-primary" type="submit">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-header fw-semibold">Riwayat Transaksi <?= $bulan ? '(Bulan: ' . h($bulan) . ')' : '' ?></div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover mb-0 align-middle">
-          <thead class="table-light">
-            <tr>
-              <th style="width:120px;">Tanggal</th>
-              <th style="width:90px;">Tipe</th>
-              <th style="width:180px;">Kategori</th>
-              <th>Keterangan</th>
-              <th class="text-end" style="width:140px;">Jumlah</th>
-              <th class="text-end" style="width:90px;">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-              $ada = false;
-              while ($row = $resList->fetchArray(SQLITE3_ASSOC)):
-                $ada = true;
-            ?>
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Riwayat Transaksi</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-light">
               <tr>
-                <td><?= h($row['tgl']) ?></td>
-                <td>
-                  <?php if ($row['tipe'] === 'MASUK'): ?>
-                    <span class="badge text-bg-success">MASUK</span>
-                  <?php else: ?>
-                    <span class="badge text-bg-danger">KELUAR</span>
-                  <?php endif; ?>
-                </td>
-                <td><?= h($row['kategori']) ?></td>
-                <td><?= h((string)$row['keterangan']) ?></td>
-                <td class="text-end"><?= rupiah((int)$row['jumlah']) ?></td>
-                <td class="text-end">
-                  <a class="btn btn-sm btn-outline-danger"
-                     onclick="return confirm('Hapus transaksi ini?')"
-                     href="?hapus=<?= (int)$row['id'] ?><?= $bulan ? '&bulan=' . urlencode($bulan) : '' ?>">
-                    Hapus
-                  </a>
-                </td>
+                <th style="width:120px;">Tanggal</th>
+                <th style="width:90px;">Tipe</th>
+                <th style="width:180px;">Kategori</th>
+                <th>Keterangan</th>
+                <th class="text-end" style="width:140px;">Jumlah</th>
+                <th class="text-end" style="width:90px;">Aksi</th>
               </tr>
-            <?php endwhile; ?>
-            <?php if (!$ada): ?>
+            </thead>
+            <tbody id="tbody">
               <tr><td colspan="6" class="text-center text-muted py-4">Belum ada transaksi.</td></tr>
-            <?php endif; ?>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
   </div>
 
-  <p class="text-muted mt-3 mb-0 small">
-    Tips: file database <code>kas.sqlite</code> ada di folder ini. Backup tinggal copy file itu.
-  </p>
+<script>
+  const STORAGE_KEY = "kas_masjid_transactions_v1";
+  const el = (id) => document.getElementById(id);
+  const rupiah = (n) => "Rp " + (n || 0).toLocaleString("id-ID");
 
-</div>
+  function todayISO() {
+    const d = new Date();
+    const pad = (x) => String(x).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function showError(msg) {
+    const a = el("alert");
+    a.textContent = msg;
+    a.classList.remove("d-none");
+  }
+
+  function hideError() {
+    const a = el("alert");
+    a.classList.add("d-none");
+    a.textContent = "";
+  }
+
+  function getFilterBulan() {
+    const v = (el("filterBulan").value || "").trim();
+    return /^\d{4}-\d{2}$/.test(v) ? v : "";
+  }
+
+  function filtered(data) {
+    const bulan = getFilterBulan();
+    if (!bulan) return data;
+    return data.filter(t => String(t.tgl || "").slice(0,7) === bulan);
+  }
+
+  function recompute(data) {
+    const d = filtered(data);
+    let masuk = 0, keluar = 0;
+
+    for (const t of d) {
+      const j = Number(t.jumlah) || 0;
+      if (t.tipe === "MASUK") masuk += j;
+      if (t.tipe === "KELUAR") keluar += j;
+    }
+
+    el("totalMasuk").textContent = rupiah(masuk);
+    el("totalKeluar").textContent = rupiah(keluar);
+    el("saldo").textContent = rupiah(masuk - keluar);
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function renderTable(data) {
+    const d = filtered(data)
+      .slice()
+      .sort((a,b) => (b.tgl || "").localeCompare(a.tgl || "") || String(b.id).localeCompare(String(a.id)));
+
+    const tb = el("tbody");
+    tb.innerHTML = "";
+
+    if (d.length === 0) {
+      tb.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Belum ada transaksi.</td></tr>`;
+      return;
+    }
+
+    for (const t of d) {
+      const badge = t.tipe === "MASUK"
+        ? `<span class="badge text-bg-success">MASUK</span>`
+        : `<span class="badge text-bg-danger">KELUAR</span>`;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(t.tgl || "")}</td>
+        <td>${badge}</td>
+        <td>${escapeHtml(t.kategori || "")}</td>
+        <td>${escapeHtml(t.keterangan || "")}</td>
+        <td class="text-end">${rupiah(Number(t.jumlah)||0)}</td>
+        <td class="text-end"><button class="btn btn-sm btn-outline-danger">Hapus</button></td>
+      `;
+
+      tr.querySelector("button").addEventListener("click", () => {
+        if (!confirm("Hapus transaksi ini?")) return;
+        const all = loadData().filter(x => x.id !== t.id);
+        saveData(all);
+        refresh();
+      });
+
+      tb.appendChild(tr);
+    }
+  }
+
+  function refresh() {
+    hideError();
+    const data = loadData();
+    recompute(data);
+    renderTable(data);
+  }
+
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // init
+  el("tgl").value = todayISO();
+
+  el("formKas").addEventListener("submit", (e) => {
+    e.preventDefault();
+    hideError();
+
+    const tgl = el("tgl").value.trim();
+    const tipe = el("tipe").value.trim();
+    const kategori = el("kategori").value.trim();
+    const keterangan = el("keterangan").value.trim();
+    const jumlah = Number(el("jumlah").value);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(tgl)) return showError("Tanggal tidak valid.");
+    if (!["MASUK","KELUAR"].includes(tipe)) return showError("Tipe harus MASUK/KELUAR.");
+    if (!kategori) return showError("Kategori wajib diisi.");
+    if (!Number.isFinite(jumlah) || jumlah <= 0) return showError("Jumlah harus > 0.");
+
+    const data = loadData();
+    data.push({
+      id: String(Date.now()) + "-" + Math.random().toString(16).slice(2),
+      tgl, tipe, kategori, keterangan,
+      jumlah: Math.round(jumlah)
+    });
+    saveData(data);
+
+    el("kategori").value = "";
+    el("keterangan").value = "";
+    el("jumlah").value = "";
+    refresh();
+  });
+
+  el("filterBulan").addEventListener("change", refresh);
+  el("btnReset").addEventListener("click", () => {
+    el("filterBulan").value = "";
+    refresh();
+  });
+
+  el("btnExportJson").addEventListener("click", () => {
+    const data = loadData();
+    const content = JSON.stringify({ exported_at: new Date().toISOString(), data }, null, 2);
+    downloadFile("kas-masjid-backup.json", content, "application/json");
+  });
+
+  el("btnExportCsv").addEventListener("click", () => {
+    const data = loadData();
+    const rows = [
+      ["Tanggal","Tipe","Kategori","Keterangan","Jumlah"],
+      ...data.map(t => [t.tgl||"", t.tipe||"", t.kategori||"", (t.keterangan||"").replaceAll("\n"," "), String(t.jumlah ?? "")])
+    ];
+    const csv = rows.map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+    downloadFile("kas-masjid.csv", csv, "text/csv");
+  });
+
+  el("importJson").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.data) ? parsed.data : null);
+      if (!arr) throw new Error("Format JSON tidak sesuai.");
+
+      const cleaned = arr
+        .filter(x => x && typeof x === "object")
+        .map(x => ({
+          id: x.id || (String(Date.now()) + "-" + Math.random().toString(16).slice(2)),
+          tgl: String(x.tgl || ""),
+          tipe: String(x.tipe || "").toUpperCase(),
+          kategori: String(x.kategori || ""),
+          keterangan: String(x.keterangan || ""),
+          jumlah: Math.max(1, Math.round(Number(x.jumlah) || 0))
+        }))
+        .filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x.tgl) && ["MASUK","KELUAR"].includes(x.tipe) && x.kategori);
+
+      if (cleaned.length === 0) throw new Error("Tidak ada data valid yang bisa diimport.");
+
+      const replace = confirm("Import MENIMPA data lama?\nOK = Timpa\nCancel = Gabung");
+      if (replace) saveData(cleaned);
+      else saveData(loadData().concat(cleaned));
+
+      e.target.value = "";
+      refresh();
+      alert("Import berhasil.");
+    } catch (err) {
+      e.target.value = "";
+      showError("Gagal import: " + (err?.message || String(err)));
+    }
+  });
+
+  refresh();
+</script>
 </body>
 </html>
