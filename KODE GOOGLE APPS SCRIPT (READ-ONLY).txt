@@ -1,0 +1,85 @@
+const SHEET_NAME = 'Transaksi';
+const TZ = 'Asia/Jakarta';
+
+function doGet(e) {
+  const action = String(e.parameter.action || '').toLowerCase();
+  const cb = e.parameter.callback; // untuk JSONP
+
+  try {
+    if (action === 'gettransactions') {
+      const data = getTransactions_();
+      return output_( { ok: true, data }, cb );
+    }
+    return output_({ ok: false, error: 'Unknown action' }, cb);
+  } catch (err) {
+    return output_({ ok: false, error: String(err) }, cb);
+  }
+}
+
+function getTransactions_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) throw new Error(`Sheet "${SHEET_NAME}" tidak ditemukan`);
+
+  const values = sh.getDataRange().getValues(); // raw values
+  if (values.length < 2) return [];
+
+  const headers = values[0].map(h => String(h || '').trim().toLowerCase());
+  const idx = (name) => headers.indexOf(name);
+
+  const iTgl = idx('tanggal');
+  const iTipe = idx('tipe');
+  const iKategori = idx('kategori');
+  const iKet = idx('keterangan');
+  const iJumlah = idx('jumlah');
+
+  if ([iTgl, iTipe, iKategori, iKet, iJumlah].some(i => i < 0)) {
+    throw new Error('Header harus: Tanggal, Tipe, Kategori, Keterangan, Jumlah');
+  }
+
+  const out = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+
+    const tgl = toISODate_(row[iTgl]);
+    if (!tgl) continue;
+
+    const tipe = String(row[iTipe] || '').trim().toUpperCase();
+    const kategori = String(row[iKategori] || '').trim();
+    const keterangan = String(row[iKet] || '').trim();
+    const jumlah = toInt_(row[iJumlah]);
+
+    if (!tipe || !kategori) continue;
+
+    out.push({ tgl, tipe, kategori, keterangan, jumlah });
+  }
+
+  return out;
+}
+
+function toISODate_(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'yyyy-MM-dd');
+  return String(v || '').trim(); // kalau sudah teks
+}
+
+function toInt_(v) {
+  if (typeof v === 'number') return Math.round(v);
+  const s = String(v || '').replace(/[^\d-]/g, '');
+  const n = parseInt(s, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function output_(obj, cb) {
+  const json = JSON.stringify(obj);
+
+  // JSONP untuk bypass CORS dari GitHub Pages
+  if (cb) {
+    return ContentService
+      .createTextOutput(`${cb}(${json});`)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
+}
