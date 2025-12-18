@@ -95,6 +95,15 @@
       color: #000000; /* Warna teks hitam */
     }
 
+    /* Styling untuk card yang membatasi bagian atas */
+    .top-card {
+      background-color: white; /* Latar belakang putih */
+      border-radius: 10px; /* Membuat sudut card melengkung */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Menambahkan bayangan lembut */
+      padding: 20px; /* Memberikan jarak dalam card */
+      margin-bottom: 30px; /* Memberikan jarak bawah pada card */
+    }
+
     /* Styling untuk card yang membatasi tabel */
     .table-card {
       background-color: white; /* Latar belakang putih */
@@ -103,20 +112,46 @@
       padding: 20px; /* Memberikan jarak dalam card */
     }
 
+    /* Styling untuk menempatkan elemen di tengah */
+    .top-controls {
+      display: flex;
+      justify-content: center; /* Memusatkan semua elemen dalam baris */
+      gap: 20px; /* Memberikan jarak antar elemen */
+      margin-top: 20px; /* Memberikan jarak atas */
+    }
+
+    /* Styling untuk input dan tombol di dalam kontrol */
+    .top-controls .form-control {
+      width: 200px; /* Mengatur lebar input bulan */
+    }
+
+    /* Memusatkan "Kas Masjid Daarul Muttaqin Bulusari" */
+    .title-card {
+      text-align: center; /* Memusatkan teks */
+      font-weight: bold; /* Menebalkan teks */
+      font-size: 2rem; /* Ukuran font */
+      margin-top: 20px; /* Memberikan jarak atas */
+    }
+
   </style>
 </head>
 <body class="bg-light">
 <div class="container py-4">
 
-  <!-- Menambahkan tulisan Bismillah di atas -->
-  <div class="bismillah-text">
-    بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-  </div>
+  <!-- Menambahkan card putih untuk bagian atas dengan judul dan tombol -->
+  <div class="top-card">
+    <!-- Menambahkan tulisan Bismillah di atas -->
+    <div class="bismillah-text">
+      بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+    </div>
 
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-    <h3 class="m-0">KAS MASJID DAARUL MUTTAQIN</h3>
+    <!-- Menambahkan tulisan judul di bawah Bismillah dan memusatkannya -->
+    <div class="title-card">
+      Kas Masjid Daarul Muttaqin Bulusari
+    </div>
 
-    <div class="d-flex flex-wrap gap-2 align-items-center">
+    <!-- Membungkus tombol dan input bulan dalam div dengan class "top-controls" -->
+    <div class="top-controls">
       <input id="filterBulan" class="form-control" type="month" />
       <button id="btnReset" class="btn btn-outline-secondary">Reset</button>
       <button id="btnRefresh" class="btn btn-outline-primary">Refresh</button>
