@@ -162,6 +162,64 @@
       margin-top: 20px;
     }
 
+    /* Media Query untuk responsif di perangkat mobile */
+    @media (max-width: 768px) {
+      .container {
+        padding-top: 15px;
+        padding-bottom: 15px;
+      }
+
+      /* Menyesuaikan ukuran teks */
+      .bismillah-text {
+        font-size: 2rem;
+      }
+
+      .title-card {
+        font-size: 1.5rem;
+      }
+
+      /* Menyesuaikan ukuran dan tata letak tombol */
+      .top-controls {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .top-controls .form-control {
+        width: 100%; /* Membuat input bulan lebih lebar pada perangkat kecil */
+        margin-bottom: 10px;
+      }
+
+      .btn-outline-secondary,
+      .btn-outline-primary,
+      .btn-outline-success {
+        width: 100%; /* Membuat tombol mengambil seluruh lebar */
+        margin-bottom: 10px;
+      }
+
+      /* Menyesuaikan card agar lebih rapi pada perangkat kecil */
+      .card {
+        margin-bottom: 15px;
+      }
+
+      .card-total-masuk, .card-total-keluar, .card-saldo {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      /* Mengubah tabel menjadi lebih responsif */
+      .table th, .table td {
+        font-size: 0.875rem; /* Mengurangi ukuran font pada perangkat kecil */
+        padding: 8px;
+      }
+
+      .table th:nth-child(1), .table td:nth-child(1),
+      .table th:nth-child(2), .table td:nth-child(2),
+      .table th:nth-child(3), .table td:nth-child(3),
+      .table th:nth-child(4), .table td:nth-child(4),
+      .table th:nth-child(5), .table td:nth-child(5) {
+        width: auto; /* Membuat kolom lebih fleksibel */
+      }
+    }
   </style>
 </head>
 <body class="bg-light">
