@@ -97,12 +97,21 @@
         .scroll-smooth {
             scroll-behavior: smooth;
         }
+        
+        /* Modal Animation */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: visible !important;
+        }
     </style>
 </head>
 <body class="islamic-pattern text-slate-800 antialiased min-h-screen flex flex-col">
 
     <!-- Notifikasi Toast -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-4 right-4 z-[60] pointer-events-none"></div>
 
     <!-- Header / Navbar -->
     <nav class="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-40">
@@ -120,12 +129,14 @@
                 </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <button onclick="app.navigate('dashboard')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700/50 transition-all bg-blue-700 shadow-sm" data-target="dashboard">Dashboard</button>
-                        <button onclick="app.navigate('portofolio')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700/50 transition-all text-blue-100" data-target="portofolio">Kegiatan</button>
-                        <button onclick="app.navigate('kritik')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700/50 transition-all text-blue-100" data-target="kritik">Kritik & Saran</button>
-                    </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <button onclick="app.navigate('dashboard')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700/50 transition-all bg-blue-700 shadow-sm" data-target="dashboard">Dashboard</button>
+                    <button onclick="app.navigate('portofolio')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700/50 transition-all text-blue-100" data-target="portofolio">Kegiatan</button>
+                    <button onclick="app.navigate('kritik')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700/50 transition-all text-blue-100" data-target="kritik">Kritik & Saran</button>
+                    <!-- NEW: Admin Button -->
+                    <button onclick="app.openAdminAuth()" class="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i> Transaksi Baru
+                    </button>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -143,6 +154,9 @@
                 <button onclick="app.navigate('dashboard')" class="mobile-nav-btn block px-3 py-3 rounded-md text-base font-medium text-white bg-blue-900 w-full text-left" data-target="dashboard">Dashboard</button>
                 <button onclick="app.navigate('portofolio')" class="mobile-nav-btn block px-3 py-3 rounded-md text-base font-medium text-blue-200 hover:text-white hover:bg-blue-700 w-full text-left" data-target="portofolio">Kegiatan</button>
                 <button onclick="app.navigate('kritik')" class="mobile-nav-btn block px-3 py-3 rounded-md text-base font-medium text-blue-200 hover:text-white hover:bg-blue-700 w-full text-left" data-target="kritik">Kritik & Saran</button>
+                <button onclick="app.openAdminAuth()" class="mobile-nav-btn block px-3 py-3 rounded-md text-base font-medium text-emerald-300 hover:text-white hover:bg-emerald-700 w-full text-left border-t border-blue-700 mt-2">
+                    <i class="fas fa-plus-circle mr-2"></i> Transaksi Baru (Admin)
+                </button>
             </div>
         </div>
     </nav>
@@ -164,10 +178,12 @@
         <!-- VIEW: DASHBOARD -->
         <section id="view-dashboard" class="space-y-6 md:space-y-8 animate-fade-in">
             
-            <!-- NEW: Jadwal Sholat Section -->
+            <!-- NEW: Jadwal Sholat Section (Updated Style) -->
             <div class="bg-gradient-to-r from-blue-900 to-emerald-800 rounded-2xl shadow-lg border border-blue-800 p-6 md:p-8 relative overflow-hidden text-white">
-                <!-- Background Pattern -->
+                <!-- Background Pattern (Same as Summary) -->
                 <div class="absolute inset-0 opacity-10 pattern-bg" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
+                
+                <!-- Ornament Background -->
                 <div class="absolute -right-6 -top-6 text-white opacity-5 transform rotate-12 pointer-events-none">
                     <i class="fas fa-kaaba text-9xl"></i>
                 </div>
@@ -187,7 +203,9 @@
                         </div>
                     </div>
 
+                    <!-- Prayer Times Grid -->
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4" id="prayer-times-container">
+                        <!-- Loading State for Prayer Times -->
                         <div class="col-span-full text-center py-6 text-blue-200 text-sm animate-pulse flex flex-col items-center">
                             <div class="loader w-6 h-6 border-white/20 border-t-white mb-2"></div>
                             Mengambil jadwal sholat...
@@ -330,7 +348,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-2xl font-serif font-bold text-slate-800">Dokumentasi Kegiatan</h2>
-                    <p class="text-slate-600 mt-1">Kegiatan dan program yang telah terlaksana.</p>
+                    <p class="text-slate-600 mt-1">Galeri kegiatan dan program yang telah terlaksana.</p>
                 </div>
                 <div class="bg-blue-50 text-blue-700 text-xs font-medium px-4 py-2 rounded-full border border-blue-100 flex items-center shadow-sm">
                     <i class="fas fa-info-circle mr-2"></i> Data dikelola via Google Sheets (Admin)
@@ -390,6 +408,115 @@
 
     </main>
 
+    <!-- MODAL: PIN ADMIN -->
+    <div id="modal-pin" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300">
+            <h3 class="text-xl font-bold text-center text-slate-800 mb-4">Akses Admin</h3>
+            <p class="text-sm text-center text-slate-500 mb-6">Masukkan PIN untuk melanjutkan</p>
+            
+            <input type="password" id="pin-input" class="w-full text-center text-2xl tracking-[0.5em] font-bold border-2 border-slate-200 rounded-lg py-3 focus:outline-none focus:border-blue-500 mb-6" maxlength="6" placeholder="******">
+            
+            <div class="flex gap-3">
+                <button onclick="app.closeModal('modal-pin')" class="flex-1 py-3 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200">Batal</button>
+                <button onclick="app.verifyPin()" class="flex-1 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TRANSAKSI BARU -->
+    <div id="modal-transaction" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
+            <div class="bg-blue-600 p-4 rounded-t-2xl flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white"><i class="fas fa-plus-circle mr-2"></i> Transaksi Baru</h3>
+                <button onclick="app.closeModal('modal-transaction')" class="text-white hover:bg-blue-700 rounded-full p-1"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <form id="transaction-form" onsubmit="app.submitTransaction(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1 uppercase">Jenis Transaksi</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="tipe" value="PEMASUKAN" class="peer sr-only" checked>
+                            <div class="text-center py-3 rounded-lg border-2 border-slate-200 text-slate-500 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 font-bold transition-all">
+                                <i class="fas fa-arrow-down mr-1"></i> Pemasukan
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="tipe" value="PENGELUARAN" class="peer sr-only">
+                            <div class="text-center py-3 rounded-lg border-2 border-slate-200 text-slate-500 peer-checked:border-rose-500 peer-checked:bg-rose-50 peer-checked:text-rose-700 font-bold transition-all">
+                                <i class="fas fa-arrow-up mr-1"></i> Pengeluaran
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1 uppercase">Tanggal</label>
+                    <input type="date" id="trx-date" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1 uppercase">Kategori</label>
+                    <input type="text" id="trx-category" list="category-list" required placeholder="Contoh: Infaq Jumat" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <datalist id="category-list">
+                        <option value="Infaq Jumat">
+                        <option value="Operasional">
+                        <option value="Kebersihan">
+                        <option value="Donasi">
+                        <option value="Pembangunan">
+                    </datalist>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1 uppercase">Jumlah (Rp)</label>
+                    <input type="number" id="trx-amount" required placeholder="0" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1 uppercase">Keterangan (Opsional)</label>
+                    <textarea id="trx-desc" rows="2" placeholder="Detail transaksi..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="btn-save-trx" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 shadow-md transition-all">
+                        Simpan Transaksi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: LIGHTBOX (Popup Zoom) - IMPROVED -->
+    <div id="modal-lightbox" class="fixed inset-0 z-[70] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center bg-black/95 backdrop-blur-md" onclick="app.closeModal('modal-lightbox')">
+        <div class="relative w-full h-full p-4 flex items-center justify-center">
+            
+            <!-- Close Button -->
+            <button class="absolute top-4 right-4 z-[90] text-white/80 hover:text-white bg-black/30 hover:bg-black/50 rounded-full p-3 transition-all focus:outline-none" onclick="app.closeModal('modal-lightbox')">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+
+            <!-- Nav Prev -->
+            <button id="lb-prev" onclick="event.stopPropagation(); app.slideLightbox(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-[80] text-white/70 hover:text-white bg-black/30 hover:bg-black/60 rounded-full w-12 h-12 flex items-center justify-center transition-all focus:outline-none hidden">
+                <i class="fas fa-chevron-left text-3xl"></i>
+            </button>
+
+            <!-- Image Wrapper -->
+            <div class="relative max-w-full max-h-full flex items-center justify-center" onclick="event.stopPropagation()">
+                 <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl transform scale-95 transition-transform duration-300 select-none">
+                 <!-- Counter -->
+                 <div id="lb-counter" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden">
+                    1 / 1
+                 </div>
+            </div>
+
+            <!-- Nav Next -->
+            <button id="lb-next" onclick="event.stopPropagation(); app.slideLightbox(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-[80] text-white/70 hover:text-white bg-black/30 hover:bg-black/60 rounded-full w-12 h-12 flex items-center justify-center transition-all focus:outline-none hidden">
+                <i class="fas fa-chevron-right text-3xl"></i>
+            </button>
+            
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-10 mt-auto border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
@@ -420,16 +547,23 @@
                 </div>
             </div>
             <div class="border-t border-slate-800 mt-10 pt-8 text-xs text-center text-slate-600">
-                &copy; 2026 Masjid Jami' Daarul Muttaqin.
+                &copy; 2026 Masjid Jami' Daarul Muttaqin. Dilindungi Undang-Undang.
             </div>
         </div>
     </footer>
 
+
+
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         const CONFIG = {
-            WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxS8VsowU1wExGD8J8iScxLYXjsgx8_59bhh5id6tL3MuVUqk04KKEoTAUaXaDisd8p/exec" 
+            // URL Web App Terbaru
+            WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxS8VsowU1wExGD8J8iScxLYXjsgx8_59bhh5id6tL3MuVUqk04KKEoTAUaXaDisd8p/exec"
+            // ADMIN_PIN sudah dihapus dari sini demi keamanan
         };
+
+        // Variabel untuk menyimpan PIN sementara di memori browser (hilang saat refresh)
+        let sessionPin = "";
 
         const MockData = {
             transactions: [
@@ -453,14 +587,241 @@
                 itemsPerPage: 20,
                 filteredData: [],
                 filterMonth: 'all',
-                filterSort: 'newest'
+                filterSort: 'newest',
+                // New Lightbox State
+                lightbox: {
+                    photos: [],
+                    currentIndex: 0
+                }
             },
 
             init: async function() {
                 this.setupNavigation();
+                this.setupKeyboardEvents(); // New
                 await this.fetchData();
                 this.fetchPrayerTimes(); 
                 this.renderIslamicHolidays();
+                
+                // Set default date for transaction form
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('trx-date').value = today;
+            },
+            
+            // Listen for arrow keys in lightbox
+            setupKeyboardEvents: function() {
+                document.addEventListener('keydown', (e) => {
+                    const modal = document.getElementById('modal-lightbox');
+                    if (!modal.classList.contains('hidden')) {
+                        if (e.key === 'ArrowLeft') this.slideLightbox(-1);
+                        if (e.key === 'ArrowRight') this.slideLightbox(1);
+                        if (e.key === 'Escape') this.closeModal('modal-lightbox');
+                    }
+                });
+            },
+
+            // --- ADMIN FUNCTIONS ---
+            openAdminAuth: function() {
+                const modal = document.getElementById('modal-pin');
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); }, 10);
+                document.getElementById('pin-input').value = '';
+                document.getElementById('pin-input').focus();
+            },
+
+            // UPDATE: Verifikasi PIN ke Server dengan Error Handling Lebih Detail
+            verifyPin: async function() {
+                const input = document.getElementById('pin-input').value;
+                const btn = document.querySelector('#modal-pin button:last-child'); // Tombol Masuk
+                const originalText = btn.innerText;
+
+                if (!input) {
+                    this.showToast('Masukkan PIN terlebih dahulu', 'warning');
+                    return;
+                }
+
+                // UI Loading
+                btn.innerText = 'Mengecek...';
+                btn.disabled = true;
+
+                try {
+                    // Kirim PIN ke Apps Script untuk dicek
+                    const response = await fetch(CONFIG.WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ type: 'verify', pin: input })
+                    });
+
+                    if (!response.ok) throw new Error("Gagal menghubungi server");
+                    
+                    const result = await response.json();
+
+                    if (result.ok) {
+                        // PIN Benar
+                        sessionPin = input; // Simpan di memori sementara
+                        this.closeModal('modal-pin');
+                        this.showToast("Login Admin Berhasil", "success");
+                        this.openTransactionModal();
+                    } else {
+                        // PIN Salah atau Error Lain
+                        const errorMsg = result.error === "Unknown type" 
+                            ? "Server belum update (Lakukan Deploy New Version)" 
+                            : (result.error || 'PIN Salah! Akses ditolak.');
+                            
+                        this.showToast(errorMsg, 'error');
+                        document.getElementById('pin-input').value = '';
+                    }
+                } catch (error) {
+                    console.error(error);
+                    this.showToast('Terjadi kesalahan koneksi.', 'error');
+                } finally {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            },
+
+            openTransactionModal: function() {
+                const modal = document.getElementById('modal-transaction');
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); }, 10);
+            },
+
+            // --- LIGHTBOX (POPUP FOTO) - LOGIC ---
+            
+            // Helper to get photos array for an activity
+            getPhotos: function(item) {
+                let photos = [];
+                if (Array.isArray(item.foto)) {
+                    photos = item.foto;
+                } else if (typeof item.foto === 'string' && item.foto.trim() !== '') {
+                    photos = item.foto.split(',').map(url => url.trim()).filter(url => url !== '');
+                }
+                return photos;
+            },
+
+            openLightbox: function(actIdx, photoIdx) {
+                const item = this.data.activities[actIdx];
+                const photos = this.getPhotos(item);
+                
+                if (photos.length === 0) return;
+
+                // Set State
+                this.state.lightbox.photos = photos;
+                this.state.lightbox.currentIndex = photoIdx;
+
+                // Render UI
+                this.updateLightboxUI();
+
+                // Open Modal Animation
+                const modal = document.getElementById('modal-lightbox');
+                modal.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    document.getElementById('lightbox-img').classList.remove('scale-95');
+                    document.getElementById('lightbox-img').classList.add('scale-100');
+                });
+            },
+
+            slideLightbox: function(direction) {
+                const { photos, currentIndex } = this.state.lightbox;
+                if (photos.length <= 1) return;
+
+                let newIndex = currentIndex + direction;
+                if (newIndex < 0) newIndex = photos.length - 1; // Loop back to last
+                if (newIndex >= photos.length) newIndex = 0; // Loop back to first
+                
+                this.state.lightbox.currentIndex = newIndex;
+                this.updateLightboxUI();
+            },
+
+            updateLightboxUI: function() {
+                const { photos, currentIndex } = this.state.lightbox;
+                const img = document.getElementById('lightbox-img');
+                const btnPrev = document.getElementById('lb-prev');
+                const btnNext = document.getElementById('lb-next');
+                const counter = document.getElementById('lb-counter');
+
+                // Update Image Src
+                img.src = photos[currentIndex];
+                
+                // Toggle Buttons Visibility
+                if (photos.length > 1) {
+                    btnPrev.classList.remove('hidden');
+                    btnNext.classList.remove('hidden');
+                    counter.classList.remove('hidden');
+                    counter.innerText = `${currentIndex + 1} / ${photos.length}`;
+                } else {
+                    btnPrev.classList.add('hidden');
+                    btnNext.classList.add('hidden');
+                    counter.classList.add('hidden');
+                }
+            },
+
+            closeModal: function(modalId) {
+                const modal = document.getElementById(modalId);
+                
+                if (modalId === 'modal-lightbox') {
+                    const img = document.getElementById('lightbox-img');
+                    img.classList.remove('scale-100');
+                    img.classList.add('scale-95');
+                }
+
+                modal.classList.add('opacity-0');
+                
+                const innerDiv = modal.querySelector('div:not(.relative)'); 
+                if (innerDiv) {
+                    innerDiv.classList.add('scale-95');
+                }
+                
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            },
+
+            submitTransaction: async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btn-save-trx');
+                const originalText = btn.innerHTML;
+                
+                if (!sessionPin) {
+                    this.showToast("Sesi habis. Silakan login ulang.", "error");
+                    this.closeModal('modal-transaction');
+                    return;
+                }
+
+                const formData = {
+                    type: 'transaction',
+                    pin: sessionPin, // Kirim PIN untuk validasi server
+                    tipe: document.querySelector('input[name="tipe"]:checked').value,
+                    date: document.getElementById('trx-date').value,
+                    category: document.getElementById('trx-category').value,
+                    amount: document.getElementById('trx-amount').value,
+                    desc: document.getElementById('trx-desc').value
+                };
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch(CONFIG.WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Mode no-cors agar tidak error block, tapi kita tidak bisa baca response
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    // Karena no-cors, kita asumsikan berhasil jika tidak ada network error
+                    this.showToast("Transaksi berhasil dikirim ke server!");
+                    document.getElementById('transaction-form').reset();
+                    document.getElementById('trx-date').valueAsDate = new Date(); 
+                    this.closeModal('modal-transaction');
+                    
+                    // Refresh Data setelah jeda
+                    setTimeout(() => this.fetchData(), 2500); 
+                    
+                } catch (err) {
+                    this.showToast("Gagal menyimpan transaksi.", "error");
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
             },
 
             // --- JADWAL SHOLAT API ---
@@ -475,7 +836,6 @@
                     if(result.code === 200) {
                         const timings = result.data.timings;
                         const date = result.data.date.readable;
-                        
                         dateDisplay.innerText = date;
                         
                         const prayers = [
@@ -494,15 +854,10 @@
                                 <span class="text-2xl md:text-3xl font-serif font-bold text-white tracking-wide">${p.time}</span>
                             </div>`;
                         });
-                        
                         container.innerHTML = html;
-                    } else {
-                        throw new Error('API Error');
                     }
                 } catch (e) {
-                    console.error("Gagal load jadwal sholat", e);
-                    container.innerHTML = `<div class="col-span-full text-center text-red-200 bg-red-900/20 p-4 rounded-lg border border-red-500/30 text-sm">Gagal memuat jadwal. Periksa koneksi internet.</div>`;
-                    dateDisplay.innerText = "-";
+                    container.innerHTML = `<div class="col-span-full text-center text-red-200 text-sm">Gagal memuat jadwal.</div>`;
                 }
             },
 
@@ -510,7 +865,6 @@
             renderIslamicHolidays: function() {
                 const container = document.getElementById('islamic-holidays-container');
                 const yearDisplay = document.getElementById('current-year-display');
-                
                 const today = new Date();
                 const currentYear = today.getFullYear();
                 yearDisplay.innerText = currentYear;
@@ -597,41 +951,40 @@
                     const [transJson, actJson] = await Promise.all([ fetchSafe(urlTrans), fetchSafe(urlAct) ]);
 
                     if (transJson.ok) {
-                         this.processData(transJson.data);
+                         app.processData(transJson.data);
                     } else {
                          throw new Error(transJson.error || "Gagal memuat transaksi");
                     }
 
                     if (actJson.ok) {
-                        this.data.activities = actJson.data;
+                        app.data.activities = actJson.data;
                     } else {
                         console.warn("Gagal memuat kegiatan:", actJson.error);
-                        this.data.activities = [];
+                        app.data.activities = [];
                     }
                     
-                    this.renderAll();
+                    app.renderAll();
                     loader.classList.add('hidden');
                     
                     const now = new Date();
-                    document.getElementById('last-updated').innerHTML = `<i class="fas fa-check-circle text-emerald-500 mr-1"></i> Diperbarui: ${now.toLocaleTimeString('id-ID')}`;
+                    document.getElementById('last-updated').innerHTML = `<i class="fas fa-check-circle text-emerald-500 mr-1"></i> Data Asli - Diperbarui: ${now.toLocaleTimeString('id-ID')}`;
 
                 } catch (error) {
                     console.warn("Error Detail:", error);
-                    this.processData(MockData.transactions); 
-                    this.data.activities = MockData.activities;
-                    this.renderAll();
+                    app.processData(MockData.transactions); 
+                    app.data.activities = MockData.activities;
+                    app.renderAll();
                     loader.classList.add('hidden');
                     let errorMsg = "Gagal koneksi. Menggunakan Data Simulasi.";
-                    this.showToast(errorMsg, "warning");
+                    app.showToast(errorMsg, "warning");
                     document.getElementById('last-updated').innerHTML = `<i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Mode Simulasi (Offline)`;
                 }
             },
 
             processData: function(rawTransactions) {
+                if (!rawTransactions) return; 
                 const periods = new Set();
-                this.data.transactions = rawTransactions.map(item => {
-                    // ROBUST DATE HANDLING: Cek 'tanggal', 'tgl', 'date'
-                    // Ini memperbaiki masalah tanggal hilang di tabel
+                app.data.transactions = rawTransactions.map(item => {
                     const tgl = item.tanggal || item.tgl || item.date || ""; 
                     const kat = item.kategori || item.category || "";
                     const ket = item.keterangan || item.desc || "";
@@ -642,13 +995,12 @@
                     const tipeStr = (tipeRaw || '').toUpperCase();
                     const isMasuk = tipeStr.includes('MASUK') || tipeStr.includes('IN') || tipeStr === 'PEMASUKAN' || tipeStr === 'INFAQ';
                     
-                    // Ekstrak Periode Bulan-Tahun untuk Filter
                     if (tgl && tgl.length >= 7) {
                         periods.add(tgl.substring(0, 7)); 
                     }
 
                     return {
-                        date: tgl, // Properti 'date' yang standar digunakan di seluruh app
+                        date: tgl,            
                         category: kat,   
                         desc: ket,     
                         amount: parseInt(jum) || 0, 
@@ -657,16 +1009,16 @@
                     };
                 });
 
-                this.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                app.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
-                this.data.totals.in = this.data.transactions.filter(t => t.type === 'in').reduce((sum, item) => sum + item.amount, 0);
-                this.data.totals.out = this.data.transactions.filter(t => t.type === 'out').reduce((sum, item) => sum + item.amount, 0);
-                this.data.totals.balance = this.data.totals.in - this.data.totals.out;
+                app.data.totals.in = app.data.transactions.filter(t => t.type === 'in').reduce((sum, item) => sum + item.amount, 0);
+                app.data.totals.out = app.data.transactions.filter(t => t.type === 'out').reduce((sum, item) => sum + item.amount, 0);
+                app.data.totals.balance = app.data.totals.in - app.data.totals.out;
 
-                this.data.uniquePeriods = Array.from(periods).sort().reverse();
+                app.data.uniquePeriods = Array.from(periods).sort().reverse();
                 const monthSelect = document.getElementById('filter-month');
                 monthSelect.innerHTML = '<option value="all">Semua Periode</option>';
-                this.data.uniquePeriods.forEach(ym => {
+                app.data.uniquePeriods.forEach(ym => {
                     const [year, month] = ym.split('-');
                     const date = new Date(year, month - 1);
                     const label = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
@@ -675,47 +1027,47 @@
             },
 
             renderAll: function() {
-                this.renderSummary();
-                this.handleFilterChange();
-                this.renderPortfolio();
+                app.renderSummary();
+                app.handleFilterChange();
+                app.renderPortfolio();
             },
 
             renderSummary: function() {
-                document.getElementById('dash-total-in').innerText = this.formatCurrency(this.data.totals.in);
-                document.getElementById('dash-total-out').innerText = this.formatCurrency(this.data.totals.out);
-                document.getElementById('dash-balance').innerText = this.formatCurrency(this.data.totals.balance);
+                document.getElementById('dash-total-in').innerText = app.formatCurrency(app.data.totals.in);
+                document.getElementById('dash-total-out').innerText = app.formatCurrency(app.data.totals.out);
+                document.getElementById('dash-balance').innerText = app.formatCurrency(app.data.totals.balance);
             },
 
             handleFilterChange: function() {
-                this.state.filterMonth = document.getElementById('filter-month').value;
-                this.state.filterSort = document.getElementById('filter-sort').value;
-                this.state.currentPage = 1;
+                app.state.filterMonth = document.getElementById('filter-month').value;
+                app.state.filterSort = document.getElementById('filter-sort').value;
+                app.state.currentPage = 1;
 
-                this.state.filteredData = this.data.transactions.filter(t => {
-                    if (this.state.filterMonth === 'all') return true;
+                app.state.filteredData = app.data.transactions.filter(t => {
+                    if (app.state.filterMonth === 'all') return true;
                     // Pastikan t.date ada sebelum dicek
-                    return t.date && t.date.startsWith(this.state.filterMonth);
+                    return t.date && t.date.startsWith(app.state.filterMonth);
                 });
 
-                this.state.filteredData.sort((a, b) => {
+                app.state.filteredData.sort((a, b) => {
                     const dateA = new Date(a.date);
                     const dateB = new Date(b.date);
                     if(isNaN(dateA)) return 1; 
                     if(isNaN(dateB)) return -1;
                     
-                    return this.state.filterSort === 'newest' ? dateB - dateA : dateA - dateB;
+                    return app.state.filterSort === 'newest' ? dateB - dateA : dateA - dateB;
                 });
 
-                this.renderTable();
+                app.renderTable();
             },
 
             renderTable: function() {
                 const tbody = document.getElementById('table-body');
                 tbody.innerHTML = '';
-                const start = (this.state.currentPage - 1) * this.state.itemsPerPage;
-                const end = start + this.state.itemsPerPage;
-                const pageData = this.state.filteredData.slice(start, end);
-                const totalItems = this.state.filteredData.length;
+                const start = (app.state.currentPage - 1) * app.state.itemsPerPage;
+                const end = start + app.state.itemsPerPage;
+                const pageData = app.state.filteredData.slice(start, end);
+                const totalItems = app.state.filteredData.length;
 
                 if (totalItems === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">Tidak ada data untuk periode ini.</td></tr>';
@@ -726,11 +1078,11 @@
                 }
 
                 pageData.forEach(t => {
-                    const amountIn = t.type === 'in' ? this.formatCurrency(t.amount) : '-';
-                    const amountOut = t.type === 'out' ? this.formatCurrency(t.amount) : '-';
+                    const amountIn = t.type === 'in' ? app.formatCurrency(t.amount) : '-';
+                    const amountOut = t.type === 'out' ? app.formatCurrency(t.amount) : '-';
                     const row = `
                         <tr class="bg-white border-b hover:bg-slate-50 transition duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-slate-700 font-medium">${this.formatDate(t.date)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-slate-700 font-medium">${app.formatDate(t.date)}</td>
                             <td class="px-6 py-4 whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-bold ${t.type === 'in' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${t.category || ""}</span></td>
                             <td class="px-6 py-4 text-slate-600">${t.desc}</td>
                             <td class="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">${amountIn}</td>
@@ -741,22 +1093,22 @@
                 });
 
                 document.getElementById('pagination-info').innerText = `Menampilkan ${start + 1} - ${Math.min(end, totalItems)} dari ${totalItems} data`;
-                document.getElementById('btn-prev').disabled = this.state.currentPage === 1;
+                document.getElementById('btn-prev').disabled = app.state.currentPage === 1;
                 document.getElementById('btn-next').disabled = end >= totalItems;
             },
 
             nextPage: function() {
-                if ((this.state.currentPage * this.state.itemsPerPage) < this.state.filteredData.length) {
-                    this.state.currentPage++;
-                    this.renderTable();
+                if ((app.state.currentPage * app.state.itemsPerPage) < app.state.filteredData.length) {
+                    app.state.currentPage++;
+                    app.renderTable();
                     document.getElementById('transaction-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             },
 
             prevPage: function() {
-                if (this.state.currentPage > 1) {
-                    this.state.currentPage--;
-                    this.renderTable();
+                if (app.state.currentPage > 1) {
+                    app.state.currentPage--;
+                    app.renderTable();
                     document.getElementById('transaction-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             },
@@ -764,23 +1116,24 @@
             renderPortfolio: function() {
                 const container = document.getElementById('portfolio-grid');
                 container.innerHTML = ''; 
-                if (!this.data.activities || this.data.activities.length === 0) {
+                if (!app.data.activities || app.data.activities.length === 0) {
                     container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl border-2 border-dashed border-slate-300">...</div>`;
                     return;
                 }
-                this.data.activities.forEach((item, index) => {
-                    let photos = [];
-                    if (Array.isArray(item.foto)) photos = item.foto;
-                    else if (typeof item.foto === 'string' && item.foto.trim() !== '') photos = item.foto.split(',').map(url => url.trim()).filter(url => url !== '');
-                    
+                app.data.activities.forEach((item, index) => {
+                    const photos = app.getPhotos(item);
                     const hasPhotos = photos.length > 0;
                     const activityId = `activity-${index}`;
                     let mediaElement;
                     if (hasPhotos) {
                         if (photos.length > 1) {
                             let slidesHtml = '';
-                            photos.forEach(url => {
-                                slidesHtml += `<div class="flex-shrink-0 w-full h-full snap-center bg-slate-100 relative"><img src="${url}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Gagal+Memuat'"></div>`;
+                            photos.forEach((url, pIndex) => {
+                                slidesHtml += `
+                                    <div class="flex-shrink-0 w-full h-full snap-center bg-slate-100 relative cursor-pointer" onclick="app.openLightbox(${index}, ${pIndex})">
+                                        <img src="${url}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Gagal+Memuat'">
+                                    </div>
+                                `;
                             });
                             mediaElement = `
                                 <div class="relative group h-48">
@@ -793,12 +1146,16 @@
                                 </div>
                             `;
                         } else {
-                            mediaElement = `<div class="h-48 overflow-hidden bg-slate-100 relative group"><img src="${photos[0]}" alt="${item.nama || ''}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700" onerror="this.parentElement.innerHTML='...';"></div>`;
+                            mediaElement = `
+                                <div class="h-48 overflow-hidden bg-slate-100 relative group cursor-pointer" onclick="app.openLightbox(${index}, 0)">
+                                    <img src="${photos[0]}" alt="${item.nama || ''}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700" onerror="this.parentElement.innerHTML='...';">
+                                </div>
+                            `;
                         }
                     } else {
                         mediaElement = `<div class="h-48 overflow-hidden bg-slate-100 flex flex-col items-center justify-center text-slate-400"><i class="far fa-image text-3xl mb-2"></i><span class="text-xs">Tidak ada foto</span></div>`;
                     }
-                    container.innerHTML += `<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300">${mediaElement}<div class="p-6"><div class="flex items-center justify-between text-xs text-slate-400 mb-2.5"><span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">Kegiatan</span><span>${this.formatDate(item.date)}</span></div><h3 class="font-serif font-bold text-lg text-slate-800 mb-2 leading-tight">${item.nama || "(Tanpa Nama)"}</h3>${item.deskripsi ? `<p class="text-sm text-slate-600 line-clamp-3 leading-relaxed">${item.deskripsi}</p>` : ''}</div></div>`;
+                    container.innerHTML += `<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300">${mediaElement}<div class="p-6"><div class="flex items-center justify-between text-xs text-slate-400 mb-2.5"><span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">Kegiatan</span><span>${app.formatDate(item.date)}</span></div><h3 class="font-serif font-bold text-lg text-slate-800 mb-2 leading-tight">${item.nama || "(Tanpa Nama)"}</h3>${item.deskripsi ? `<p class="text-sm text-slate-600 line-clamp-3 leading-relaxed">${item.deskripsi}</p>` : ''}</div></div>`;
                 });
             },
             
@@ -841,7 +1198,7 @@
                 let currentTotalIn = 0;
                 let currentTotalOut = 0;
                 
-                this.state.filteredData.forEach(t => {
+                app.state.filteredData.forEach(t => {
                     if (t.type === 'in') currentTotalIn += t.amount;
                     if (t.type === 'out') currentTotalOut += t.amount;
                 });
@@ -864,12 +1221,12 @@
                 doc.text(`Periode: ${period}`, 14, 38);
                 doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}`, 14, 43);
 
-                const tableData = this.state.filteredData.map(t => [
-                    this.formatDate(t.date),
+                const tableData = app.state.filteredData.map(t => [
+                    app.formatDate(t.date),
                     t.category,
                     t.desc,
-                    t.type === 'in' ? this.formatCurrency(t.amount) : '-',
-                    t.type === 'out' ? this.formatCurrency(t.amount) : '-'
+                    t.type === 'in' ? app.formatCurrency(t.amount) : '-',
+                    t.type === 'out' ? app.formatCurrency(t.amount) : '-'
                 ]);
 
                 doc.autoTable({ startY: 48, head: [['Tanggal', 'Kategori', 'Keterangan', 'Masuk', 'Keluar']], body: tableData, theme: 'grid' });
@@ -878,17 +1235,17 @@
                 
                 // 3. TAMPILKAN TOTAL YANG SUDAH DIHITUNG
                 doc.text("Total Pemasukan:", 120, finalY + 4); 
-                doc.text(this.formatCurrency(currentTotalIn), 195, finalY + 4, null, null, "right");
+                doc.text(app.formatCurrency(currentTotalIn), 195, finalY + 4, null, null, "right");
                 
                 doc.text("Total Pengeluaran:", 120, finalY + 9); 
-                doc.text(this.formatCurrency(currentTotalOut), 195, finalY + 9, null, null, "right");
+                doc.text(app.formatCurrency(currentTotalOut), 195, finalY + 9, null, null, "right");
                 
                 doc.setFillColor(240, 249, 255); doc.rect(115, finalY + 13, 85, 10, 'F');
                 doc.setFont(undefined, 'bold'); doc.setTextColor(30, 64, 175); 
                 
                 const labelSaldo = period === 'Semua Periode' ? 'Saldo Akhir:' : 'Surplus/Defisit:';
                 doc.text(labelSaldo, 120, finalY + 20); 
-                doc.text(this.formatCurrency(currentDiff), 195, finalY + 20, null, null, "right");
+                doc.text(app.formatCurrency(currentDiff), 195, finalY + 20, null, null, "right");
                 
                 doc.save(`Laporan_Kas_${period}.pdf`);
             },
