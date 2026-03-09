@@ -54,7 +54,7 @@
     <style>
         .islamic-pattern {
             background-color: #f8fafc;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e40af' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e40af' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .loader {
             border: 4px solid #f3f3f3;
@@ -178,12 +178,9 @@
         <!-- VIEW: DASHBOARD -->
         <section id="view-dashboard" class="space-y-6 md:space-y-8 animate-fade-in">
             
-            <!-- NEW: Jadwal Sholat Section (Updated Style) -->
+            <!-- Jadwal Sholat Section -->
             <div class="bg-gradient-to-r from-blue-900 to-emerald-800 rounded-2xl shadow-lg border border-blue-800 p-6 md:p-8 relative overflow-hidden text-white">
-                <!-- Background Pattern (Same as Summary) -->
                 <div class="absolute inset-0 opacity-10 pattern-bg" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
-                
-                <!-- Ornament Background -->
                 <div class="absolute -right-6 -top-6 text-white opacity-5 transform rotate-12 pointer-events-none">
                     <i class="fas fa-kaaba text-9xl"></i>
                 </div>
@@ -203,9 +200,7 @@
                         </div>
                     </div>
 
-                    <!-- Prayer Times Grid -->
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4" id="prayer-times-container">
-                        <!-- Loading State for Prayer Times -->
                         <div class="col-span-full text-center py-6 text-blue-200 text-sm animate-pulse flex flex-col items-center">
                             <div class="loader w-6 h-6 border-white/20 border-t-white mb-2"></div>
                             Mengambil jadwal sholat...
@@ -218,7 +213,6 @@
             <div class="space-y-6">
                 <!-- Summary Box -->
                 <div class="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-blue-900 to-emerald-800 p-6 md:p-8 rounded-2xl shadow-lg border border-blue-800 text-white relative overflow-hidden group">
-                    <!-- Background Pattern -->
                     <div class="absolute inset-0 opacity-10 pattern-bg" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
                     
                     <div class="relative z-10 mb-6 md:mb-0 text-center md:text-left">
@@ -310,14 +304,15 @@
 
                 <!-- Table Container -->
                 <div class="overflow-x-auto table-container">
-                    <table class="w-full text-sm text-left text-slate-600 min-w-[600px]" id="transaction-table">
+                    <table class="w-full text-sm text-left text-slate-600 min-w-[700px]" id="transaction-table">
                         <thead class="bg-slate-100 text-xs uppercase font-bold text-slate-600 tracking-wider">
                             <tr>
                                 <th class="px-6 py-4 rounded-tl-lg whitespace-nowrap">Tanggal</th>
                                 <th class="px-6 py-4 whitespace-nowrap">Kategori</th>
                                 <th class="px-6 py-4 min-w-[200px]">Keterangan</th>
                                 <th class="px-6 py-4 text-right whitespace-nowrap">Masuk</th>
-                                <th class="px-6 py-4 text-right rounded-tr-lg whitespace-nowrap">Keluar</th>
+                                <th class="px-6 py-4 text-right whitespace-nowrap">Keluar</th>
+                                <th class="px-6 py-4 text-center rounded-tr-lg whitespace-nowrap">Bukti</th>
                             </tr>
                         </thead>
                         <tbody id="table-body" class="divide-y divide-slate-100">
@@ -477,6 +472,13 @@
                     <textarea id="trx-desc" rows="2" placeholder="Detail transaksi..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
 
+                <!-- NEW: Field Link Dokumen / Laporan -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1 uppercase">Link Dokumen / Nota / Bukti LPJ (Opsional)</label>
+                    <input type="url" id="trx-bukti" placeholder="https://drive.google.com/..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <p class="text-[10px] text-slate-400 mt-1">Gunakan link Google Drive. Pastikan akses diset ke "Anyone with the link".</p>
+                </div>
+
                 <div class="pt-2">
                     <button type="submit" id="btn-save-trx" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 shadow-md transition-all">
                         Simpan Transaksi
@@ -557,18 +559,15 @@
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         const CONFIG = {
-            // URL Web App Terbaru
             WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxS8VsowU1wExGD8J8iScxLYXjsgx8_59bhh5id6tL3MuVUqk04KKEoTAUaXaDisd8p/exec"
-            // ADMIN_PIN sudah dihapus dari sini demi keamanan
         };
 
-        // Variabel untuk menyimpan PIN sementara di memori browser (hilang saat refresh)
         let sessionPin = "";
 
         const MockData = {
             transactions: [
-                { tgl: "2023-12-01", kategori: "Infaq", keterangan: "Contoh: Infaq Jumat (Data Simulasi)", jumlah: 2500000, tipe: 'PEMASUKAN' },
-                { tgl: "2023-12-05", kategori: "Operasional", keterangan: "Contoh: Listrik (Data Simulasi)", jumlah: 500000, tipe: 'PENGELUARAN' }
+                { tgl: "2023-12-01", kategori: "Infaq", keterangan: "Contoh: Infaq Jumat (Data Simulasi)", jumlah: 2500000, tipe: 'PEMASUKAN', bukti: '' },
+                { tgl: "2023-12-05", kategori: "Operasional", keterangan: "Contoh: Listrik (Data Simulasi)", jumlah: 500000, tipe: 'PENGELUARAN', bukti: 'https://google.com' }
             ],
             activities: [
                 { foto: ['https://images.unsplash.com/photo-1609599006353-e629aaabfeae'], nama: 'Contoh Kegiatan', deskripsi: 'Data simulasi.' }
@@ -588,7 +587,6 @@
                 filteredData: [],
                 filterMonth: 'all',
                 filterSort: 'newest',
-                // New Lightbox State
                 lightbox: {
                     photos: [],
                     currentIndex: 0
@@ -597,29 +595,26 @@
 
             init: async function() {
                 this.setupNavigation();
-                this.setupKeyboardEvents(); // New
+                this.setupKeyboardEvents(); 
                 await this.fetchData();
                 this.fetchPrayerTimes(); 
                 this.renderIslamicHolidays();
                 
-                // Set default date for transaction form
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('trx-date').value = today;
             },
             
-            // Listen for arrow keys in lightbox
             setupKeyboardEvents: function() {
                 document.addEventListener('keydown', (e) => {
                     const modal = document.getElementById('modal-lightbox');
                     if (!modal.classList.contains('hidden')) {
-                        if (e.key === 'ArrowLeft') this.slideLightbox(-1);
-                        if (e.key === 'ArrowRight') this.slideLightbox(1);
-                        if (e.key === 'Escape') this.closeModal('modal-lightbox');
+                        if (e.key === 'ArrowLeft') app.slideLightbox(-1);
+                        if (e.key === 'ArrowRight') app.slideLightbox(1);
+                        if (e.key === 'Escape') app.closeModal('modal-lightbox');
                     }
                 });
             },
 
-            // --- ADMIN FUNCTIONS ---
             openAdminAuth: function() {
                 const modal = document.getElementById('modal-pin');
                 modal.classList.remove('hidden');
@@ -628,23 +623,20 @@
                 document.getElementById('pin-input').focus();
             },
 
-            // UPDATE: Verifikasi PIN ke Server dengan Error Handling Lebih Detail
             verifyPin: async function() {
                 const input = document.getElementById('pin-input').value;
-                const btn = document.querySelector('#modal-pin button:last-child'); // Tombol Masuk
+                const btn = document.querySelector('#modal-pin button:last-child');
                 const originalText = btn.innerText;
 
                 if (!input) {
-                    this.showToast('Masukkan PIN terlebih dahulu', 'warning');
+                    app.showToast('Masukkan PIN terlebih dahulu', 'warning');
                     return;
                 }
 
-                // UI Loading
                 btn.innerText = 'Mengecek...';
                 btn.disabled = true;
 
                 try {
-                    // Kirim PIN ke Apps Script untuk dicek
                     const response = await fetch(CONFIG.WEB_APP_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -656,23 +648,21 @@
                     const result = await response.json();
 
                     if (result.ok) {
-                        // PIN Benar
-                        sessionPin = input; // Simpan di memori sementara
-                        this.closeModal('modal-pin');
-                        this.showToast("Login Admin Berhasil", "success");
-                        this.openTransactionModal();
+                        sessionPin = input; 
+                        app.closeModal('modal-pin');
+                        app.showToast("Login Admin Berhasil", "success");
+                        app.openTransactionModal();
                     } else {
-                        // PIN Salah atau Error Lain
                         const errorMsg = result.error === "Unknown type" 
                             ? "Server belum update (Lakukan Deploy New Version)" 
                             : (result.error || 'PIN Salah! Akses ditolak.');
                             
-                        this.showToast(errorMsg, 'error');
+                        app.showToast(errorMsg, 'error');
                         document.getElementById('pin-input').value = '';
                     }
                 } catch (error) {
                     console.error(error);
-                    this.showToast('Terjadi kesalahan koneksi.', 'error');
+                    app.showToast('Terjadi kesalahan koneksi.', 'error');
                 } finally {
                     btn.innerText = originalText;
                     btn.disabled = false;
@@ -685,9 +675,6 @@
                 setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); }, 10);
             },
 
-            // --- LIGHTBOX (POPUP FOTO) - LOGIC ---
-            
-            // Helper to get photos array for an activity
             getPhotos: function(item) {
                 let photos = [];
                 if (Array.isArray(item.foto)) {
@@ -699,19 +686,16 @@
             },
 
             openLightbox: function(actIdx, photoIdx) {
-                const item = this.data.activities[actIdx];
-                const photos = this.getPhotos(item);
+                const item = app.data.activities[actIdx];
+                const photos = app.getPhotos(item);
                 
                 if (photos.length === 0) return;
 
-                // Set State
-                this.state.lightbox.photos = photos;
-                this.state.lightbox.currentIndex = photoIdx;
+                app.state.lightbox.photos = photos;
+                app.state.lightbox.currentIndex = photoIdx;
 
-                // Render UI
-                this.updateLightboxUI();
+                app.updateLightboxUI();
 
-                // Open Modal Animation
                 const modal = document.getElementById('modal-lightbox');
                 modal.classList.remove('hidden');
                 requestAnimationFrame(() => {
@@ -722,28 +706,26 @@
             },
 
             slideLightbox: function(direction) {
-                const { photos, currentIndex } = this.state.lightbox;
+                const { photos, currentIndex } = app.state.lightbox;
                 if (photos.length <= 1) return;
 
                 let newIndex = currentIndex + direction;
-                if (newIndex < 0) newIndex = photos.length - 1; // Loop back to last
-                if (newIndex >= photos.length) newIndex = 0; // Loop back to first
+                if (newIndex < 0) newIndex = photos.length - 1; 
+                if (newIndex >= photos.length) newIndex = 0; 
                 
-                this.state.lightbox.currentIndex = newIndex;
-                this.updateLightboxUI();
+                app.state.lightbox.currentIndex = newIndex;
+                app.updateLightboxUI();
             },
 
             updateLightboxUI: function() {
-                const { photos, currentIndex } = this.state.lightbox;
+                const { photos, currentIndex } = app.state.lightbox;
                 const img = document.getElementById('lightbox-img');
                 const btnPrev = document.getElementById('lb-prev');
                 const btnNext = document.getElementById('lb-next');
                 const counter = document.getElementById('lb-counter');
 
-                // Update Image Src
                 img.src = photos[currentIndex];
                 
-                // Toggle Buttons Visibility
                 if (photos.length > 1) {
                     btnPrev.classList.remove('hidden');
                     btnNext.classList.remove('hidden');
@@ -781,19 +763,21 @@
                 const originalText = btn.innerHTML;
                 
                 if (!sessionPin) {
-                    this.showToast("Sesi habis. Silakan login ulang.", "error");
-                    this.closeModal('modal-transaction');
+                    app.showToast("Sesi habis. Silakan login ulang.", "error");
+                    app.closeModal('modal-transaction');
                     return;
                 }
 
+                // Kirim bukti link juga
                 const formData = {
                     type: 'transaction',
-                    pin: sessionPin, // Kirim PIN untuk validasi server
+                    pin: sessionPin, 
                     tipe: document.querySelector('input[name="tipe"]:checked').value,
                     date: document.getElementById('trx-date').value,
                     category: document.getElementById('trx-category').value,
                     amount: document.getElementById('trx-amount').value,
-                    desc: document.getElementById('trx-desc').value
+                    desc: document.getElementById('trx-desc').value,
+                    buktiLink: document.getElementById('trx-bukti').value // AMBIL URL BUKTI
                 };
 
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
@@ -802,29 +786,26 @@
                 try {
                     const response = await fetch(CONFIG.WEB_APP_URL, {
                         method: 'POST',
-                        mode: 'no-cors', // Mode no-cors agar tidak error block, tapi kita tidak bisa baca response
+                        mode: 'no-cors', 
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(formData)
                     });
 
-                    // Karena no-cors, kita asumsikan berhasil jika tidak ada network error
-                    this.showToast("Transaksi berhasil dikirim ke server!");
+                    app.showToast("Transaksi berhasil dikirim ke server!");
                     document.getElementById('transaction-form').reset();
                     document.getElementById('trx-date').valueAsDate = new Date(); 
-                    this.closeModal('modal-transaction');
+                    app.closeModal('modal-transaction');
                     
-                    // Refresh Data setelah jeda
-                    setTimeout(() => this.fetchData(), 2500); 
+                    setTimeout(() => app.fetchData(), 2500); 
                     
                 } catch (err) {
-                    this.showToast("Gagal menyimpan transaksi.", "error");
+                    app.showToast("Gagal menyimpan transaksi.", "error");
                 } finally {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
             },
 
-            // --- JADWAL SHOLAT API ---
             fetchPrayerTimes: async function() {
                 const container = document.getElementById('prayer-times-container');
                 const dateDisplay = document.getElementById('prayer-date-display');
@@ -861,7 +842,6 @@
                 }
             },
 
-            // --- AUTO ISLAMIC HOLIDAYS ---
             renderIslamicHolidays: function() {
                 const container = document.getElementById('islamic-holidays-container');
                 const yearDisplay = document.getElementById('current-year-display');
@@ -929,7 +909,6 @@
                 container.innerHTML = html;
             },
 
-            // --- DATA UTAMA (SHEETS) ---
             fetchData: async function() {
                 const loader = document.getElementById('loading-state');
                 const errorState = document.getElementById('error-state');
@@ -991,6 +970,7 @@
                     const jum = (item.jumlah !== undefined && item.jumlah !== "") ? item.jumlah : 
                                 (item.amount !== undefined && item.amount !== "") ? item.amount : 0;
                     const tipeRaw = item.tipe || item.type || "";
+                    const bkt = item.bukti || ""; // TANGKAP BUKTI
 
                     const tipeStr = (tipeRaw || '').toUpperCase();
                     const isMasuk = tipeStr.includes('MASUK') || tipeStr.includes('IN') || tipeStr === 'PEMASUKAN' || tipeStr === 'INFAQ';
@@ -1005,7 +985,8 @@
                         desc: ket,     
                         amount: parseInt(jum) || 0, 
                         type: isMasuk ? 'in' : 'out',
-                        originalType: tipeRaw
+                        originalType: tipeRaw,
+                        bukti: bkt
                     };
                 });
 
@@ -1045,7 +1026,6 @@
 
                 app.state.filteredData = app.data.transactions.filter(t => {
                     if (app.state.filterMonth === 'all') return true;
-                    // Pastikan t.date ada sebelum dicek
                     return t.date && t.date.startsWith(app.state.filterMonth);
                 });
 
@@ -1070,7 +1050,7 @@
                 const totalItems = app.state.filteredData.length;
 
                 if (totalItems === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">Tidak ada data untuk periode ini.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">Tidak ada data untuk periode ini.</td></tr>';
                     document.getElementById('pagination-info').innerText = '0 data';
                     document.getElementById('btn-prev').disabled = true;
                     document.getElementById('btn-next').disabled = true;
@@ -1080,6 +1060,11 @@
                 pageData.forEach(t => {
                     const amountIn = t.type === 'in' ? app.formatCurrency(t.amount) : '-';
                     const amountOut = t.type === 'out' ? app.formatCurrency(t.amount) : '-';
+                    // Tampilkan Tombol Laporan Jika Ada Bukti
+                    const buktiLink = t.bukti && t.bukti.trim() !== '' 
+                        ? `<a href="${t.bukti}" target="_blank" class="inline-flex items-center justify-center bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded text-xs font-medium transition-colors"><i class="fas fa-file-alt mr-1.5"></i> Lihat</a>`
+                        : '<span class="text-slate-300">-</span>';
+
                     const row = `
                         <tr class="bg-white border-b hover:bg-slate-50 transition duration-150">
                             <td class="px-6 py-4 whitespace-nowrap text-slate-700 font-medium">${app.formatDate(t.date)}</td>
@@ -1087,6 +1072,7 @@
                             <td class="px-6 py-4 text-slate-600">${t.desc}</td>
                             <td class="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">${amountIn}</td>
                             <td class="px-6 py-4 text-right font-bold text-rose-600 whitespace-nowrap">${amountOut}</td>
+                            <td class="px-6 py-4 text-center whitespace-nowrap">${buktiLink}</td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
@@ -1187,14 +1173,12 @@
                 document.getElementById('mobile-menu').classList.toggle('hidden');
             },
 
-            // FIX: HITUNG TOTAL BERDASARKAN DATA TAMPIL & NAMA MASJID
             exportToPDF: function() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 const monthSelect = document.getElementById('filter-month');
                 const period = monthSelect.options[monthSelect.selectedIndex].text;
                 
-                // 1. HITUNG TOTAL DARI DATA YANG TAMPIL (FILTERED)
                 let currentTotalIn = 0;
                 let currentTotalOut = 0;
                 
@@ -1210,7 +1194,6 @@
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(16);
                 doc.setFont(undefined, 'bold');
-                // 2. NAMA MASJID PERMANEN
                 doc.text("LAPORAN KAS Masjid Jami' Daarul Muttaqin", 105, 14, null, null, "center");
                 doc.setFontSize(10);
                 doc.setFont(undefined, 'normal');
@@ -1226,14 +1209,26 @@
                     t.category,
                     t.desc,
                     t.type === 'in' ? app.formatCurrency(t.amount) : '-',
-                    t.type === 'out' ? app.formatCurrency(t.amount) : '-'
+                    t.type === 'out' ? app.formatCurrency(t.amount) : '-',
+                    t.bukti ? 'Ada' : '-' // Tambahkan status bukti di PDF
                 ]);
 
-                doc.autoTable({ startY: 48, head: [['Tanggal', 'Kategori', 'Keterangan', 'Masuk', 'Keluar']], body: tableData, theme: 'grid' });
+                // Update kolom head untuk PDF (Menambah kolom Bukti)
+                doc.autoTable({ 
+                    startY: 48, 
+                    head: [['Tanggal', 'Kategori', 'Keterangan', 'Masuk', 'Keluar', 'Bukti']], 
+                    body: tableData, 
+                    theme: 'grid',
+                    columnStyles: {
+                        0: { cellWidth: 25 },
+                        3: { halign: 'right', textColor: [5, 150, 105] }, 
+                        4: { halign: 'right', textColor: [220, 38, 38] },
+                        5: { halign: 'center' }
+                    },
+                });
                 
                 const finalY = doc.lastAutoTable.finalY + 10;
                 
-                // 3. TAMPILKAN TOTAL YANG SUDAH DIHITUNG
                 doc.text("Total Pemasukan:", 120, finalY + 4); 
                 doc.text(app.formatCurrency(currentTotalIn), 195, finalY + 4, null, null, "right");
                 
@@ -1259,7 +1254,6 @@
             },
             
             showToast: function(message, type = 'success') {
-                // ... (Toast logic same as before) ...
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = `bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-lg mb-3 transition transform translate-x-full duration-300 flex items-center pointer-events-auto`;
@@ -1273,7 +1267,6 @@
 
             submitFeedback: async function(e) {
                 e.preventDefault();
-                // ... (Feedback logic same as before) ...
                 const btn = document.getElementById('btn-submit');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = 'Mengirim...'; btn.disabled = true;
